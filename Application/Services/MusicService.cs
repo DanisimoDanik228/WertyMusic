@@ -44,6 +44,27 @@ public class MusicService : IMusicService
         return musics;
     }
 
+    public async Task<IEnumerable<Music>> FindMusicsAsync(string musicName)
+    {
+        var existsMusic = await _musicRepository.ExistsMusicAsync(musicName);
+
+        if (existsMusic != null)
+        {
+            return [existsMusic];
+        }
+        
+        // must more strong logics (compare music from three different source site)
+        List<Music> musics = new List<Music>();
+        
+        foreach (var downloadService in _downloadServices)
+        {
+            var downloaded = await downloadService.FindMusicsAsync(musicName);
+            musics.AddRange(downloaded);
+        }
+        
+        return musics;
+    }
+
     // what param really need?
     public async Task<Stream?> GetFileMusicAsync(Guid id)
     {

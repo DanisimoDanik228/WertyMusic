@@ -47,6 +47,15 @@ public abstract class AbstractSongDowloader
 
             return new ChromeDriver(options);
         }
+
+        protected void DownloadsSong(IEnumerable<BasicInfoMusic> musics)
+        {
+            foreach (var music in musics)
+            {
+                var t = DowloadMusic(music,_webStorage);
+            }
+        }
+
         protected string DowloadMusic(BasicInfoMusic info, string destinationDowloadFolder)
         {
             using (var client = new WebClient())
