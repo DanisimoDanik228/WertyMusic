@@ -12,18 +12,35 @@ public class SiteADownloadService : AbstractSongDowloader, IMusicDownloadService
         // must set the value of SourceName
         var musics = GetInfoSong(musicName,10);
 
+        DownloadsSong(musics);
+        
         return musics.Select(m => new Music()
         {
             MusicName = m.MusicName,
             ArtistName = m.ArtistName,
             DownloadUrl = m.DownloadUrl,
+            SourceName = musicName,
             Url = m.Url,
 
         });
-        
-        throw new NotImplementedException();
     }
-    
+
+    public async Task<IEnumerable<Music>> FindMusicsAsync(string musicName)
+    {
+        // must set the value of SourceName
+        var musics = GetInfoSong(musicName,10);
+        
+        return musics.Select(m => new Music()
+        {
+            MusicName = m.MusicName,
+            ArtistName = m.ArtistName,
+            DownloadUrl = m.DownloadUrl,
+            SourceName = musicName,
+            Url = m.Url,
+
+        });
+    }
+
     private static BasicInfoMusic FindApi(string url)
     {
         var driver = SetupDriver();
@@ -66,7 +83,6 @@ public class SiteADownloadService : AbstractSongDowloader, IMusicDownloadService
             for (int i = 0; i < count * 2 && i < songPages.Count() && i < 2 * MaxCountSongForSearchSong; i += 2)
             {
                 var t = FindApi(songPages[i].GetAttribute("href"));
-                t.Url = DowloadMusic(t,_webStorage);
                 res.Add(t);
             }
 

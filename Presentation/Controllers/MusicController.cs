@@ -19,8 +19,16 @@ public class MusicController : ControllerBase
         _musicService = musicService;
     }
     
+    [HttpGet("musics")]
+    public async Task<IActionResult> FindMusics([FromBody] DownloadRequest request)
+    {
+        IEnumerable<Music> listMusic = await _musicService.FindMusicsAsync(request.musicName);
+        
+        return Ok(listMusic);
+    }
+    
     // Download, add to repository and send .mp3 file
-    [HttpPost("download")]
+    //[HttpPost("download")]
     public async Task<IActionResult> Download([FromBody] DownloadRequest request)
     {
         IEnumerable<Music> listMusic = await _musicService.DownloadMusicsAsync(request.musicName);

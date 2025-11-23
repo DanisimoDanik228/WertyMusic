@@ -7,6 +7,9 @@ public interface IMusicService
 {
     // Main function
     Task<IEnumerable<Music>> DownloadMusicsAsync(string musicName);
+    Task<IEnumerable<Music>> FindMusicsAsync(string musicName);
+    
+    
     Task<Stream?>  GetFileMusicAsync(Guid id);
     Task<Music?> GetMusicByNameAsync(string  musicName);
     Task<Music?> GetMusicByIdAsync(Guid id);
