@@ -13,7 +13,7 @@ public class MusicRepository : IMusicRepository
         var music = new Music()
         {
             Id = Guid.Parse("18f5eac0-3f0f-475a-baf8-b4e0bdd254b7"),
-            Name = "lol",
+            MusicName = "lol",
             ArtistName = "werty",
             CreationDate = DateTime.Now,
             SiteSource = SiteSource.A,
@@ -39,7 +39,7 @@ public class MusicRepository : IMusicRepository
 
     public async Task<Music?> GetMusicsByNameAsync(string songName)
     {
-        return _storage.FirstOrDefault(x => x.Name == songName);
+        return _storage.FirstOrDefault(x => x.MusicName == songName);
     }
 
     public async Task<Music?> AddMusicAsync(Music music)
@@ -61,7 +61,7 @@ public class MusicRepository : IMusicRepository
         index.Id = id;
         index.ArtistName =  music.ArtistName;
         index.CreationDate = music.CreationDate;
-        index.Name = music.Name;
+        index.MusicName = music.MusicName;
         index.SiteSource =  music.SiteSource;
         index.Url = music.Url;
         index.DownloadUrl = music.DownloadUrl;
@@ -81,7 +81,7 @@ public class MusicRepository : IMusicRepository
     public async Task<Music?> ExistsMusicAsync(string songName)
     {
         var res = _storage.Where(m => {
-            return m.Name == songName;
+            return m.MusicName == songName;
         });
         
         if (res.Count() == 0)
