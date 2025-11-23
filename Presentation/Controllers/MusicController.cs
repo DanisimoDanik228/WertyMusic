@@ -29,7 +29,7 @@ public class MusicController : ControllerBase
         
         var file = await _musicService.GetFileMusicAsync(music.Id);
         
-        return File(file, "audio/mpeg", music.Name + ".mp3");
+        return File(file, "audio/mpeg", music.MusicName + ".mp3");
     }
     
     [HttpGet("music/{id}")]
