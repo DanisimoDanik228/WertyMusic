@@ -5,7 +5,7 @@ namespace Domain.Models;
 public class Music
 {
     public Guid Id { get; set; }
-    public string Name { get; set; }
+    public string MusicName { get; set; }
     public string ArtistName { get; set; }
     public string Url { get; set; }
     public string DownloadUrl { get; set; }
