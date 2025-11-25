@@ -56,6 +56,8 @@ public class MusicService : IMusicService
             }
             else
             {
+                var music = await _musicRepository.GetMusicByIdAsync(id);
+                music.Url = t;
                 musicUrls.Add(t);
             }
         }
@@ -139,11 +141,6 @@ public class MusicService : IMusicService
                 {
                     string fileName = Path.GetFileName(filePath);
                     archive.CreateEntryFromFile(filePath, fileName);
-                    Console.WriteLine($"Добавлен файл: {fileName}");
-                }
-                else
-                {
-                    Console.WriteLine($"Файл не найден: {filePath}");
                 }
             }
         }
