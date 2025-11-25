@@ -1,3 +1,4 @@
+using System.Net;
 using Domain.Enum;
 using Domain.Interfaces;
 using Domain.Models;
@@ -6,25 +7,50 @@ using OpenQA.Selenium;
 namespace Infrastructure.Services;
 
 public class SiteADownloadService : AbstractSongDowloader, IMusicDownloadService
-{
-    public async Task<IEnumerable<Music>> DownloadMusicsAsync(string musicName)
+{ 
+    private async Task<string?> DownloadMusicAsync(Music music)
     {
-        // must set the value of SourceName
-        var musics = GetInfoSong(musicName,10);
-
-        DownloadsSong(musics);
-        
-        return musics.Select(m => new Music()
+        try
         {
-            MusicName = m.MusicName,
-            ArtistName = m.ArtistName,
-            DownloadUrl = m.DownloadUrl,
-            SourceName = musicName,
-            Url = m.Url,
-
-        });
+            return DownloadMusic(music,_webStorage);
+        }
+        catch (Exception  ex)
+        {
+            return null;
+        }
     }
 
+    public async Task<IEnumerable<string>?> DownloadMusicsAsync(List<Music> music)
+    {
+        List<string> musicUrls = new List<string>();
+
+        for (int i = 0; i < music.Count; i++)
+        {
+            var path = await DownloadMusicAsync(music[i]);
+            if (path == null)
+            {
+                return null;
+            }
+            
+            musicUrls.Add(path);
+            music[i].Url = path;
+        }
+
+        return musicUrls;
+    }
+
+    private static string DownloadMusic(Music info, string destinationDowloadFolder)
+    {
+        using (var client = new WebClient())
+        {
+            var filename = $"{info.MusicName} - {info.ArtistName}";
+            var fullPath = Path.Combine(destinationDowloadFolder, filename) + ".mp3";
+            client.DownloadFile(info.DownloadUrl, fullPath);
+
+            return fullPath;
+        } 
+    }
+    
     public async Task<IEnumerable<Music>> FindMusicsAsync(string musicName)
     {
         // must set the value of SourceName
@@ -32,11 +58,12 @@ public class SiteADownloadService : AbstractSongDowloader, IMusicDownloadService
         
         return musics.Select(m => new Music()
         {
+            Id = Guid.NewGuid(),
             MusicName = m.MusicName,
             ArtistName = m.ArtistName,
             DownloadUrl = m.DownloadUrl,
             SourceName = musicName,
-            Url = m.Url,
+            CreationDate = DateTime.Now
 
         });
     }
@@ -93,7 +120,6 @@ public class SiteADownloadService : AbstractSongDowloader, IMusicDownloadService
             driver.Quit();
         }
     }
-
     protected override string CreateUrlForSearch(string inputName)
     {
         return $"https://sefon.pro/search/{inputName.Replace(" ", "%20")}";

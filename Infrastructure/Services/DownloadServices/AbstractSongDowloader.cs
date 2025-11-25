@@ -10,13 +10,9 @@ public abstract class AbstractSongDowloader
     {
         protected string _webStorage =  @"C:\Users\Werty\source\repos\Code\C#\WertyMusic\Presentation\bin\Debug\net9.0\Storage\Source_A";
 
-        protected const int MaxCountSongForSearchSong = 5;
+
         
-        protected AbstractSongDowloader()
-        {
-            if(!Directory.Exists(this._webStorage))
-               Directory.CreateDirectory(this._webStorage);
-        }
+        protected const int MaxCountSongForSearchSong = 5;
 
         protected abstract List<BasicInfoMusic> GetInfoSong(string inputName, int count);
         protected abstract string CreateUrlForSearch(string inputName);
@@ -46,26 +42,6 @@ public abstract class AbstractSongDowloader
             options.AddExcludedArgument("enable-logging");
 
             return new ChromeDriver(options);
-        }
-
-        protected void DownloadsSong(IEnumerable<BasicInfoMusic> musics)
-        {
-            foreach (var music in musics)
-            {
-                var t = DowloadMusic(music,_webStorage);
-            }
-        }
-
-        protected string DowloadMusic(BasicInfoMusic info, string destinationDowloadFolder)
-        {
-            using (var client = new WebClient())
-            {
-                var filename = $"{info.MusicName} - {info.ArtistName}";
-                var fullPath = Path.Combine(destinationDowloadFolder, filename) + ".mp3";
-                client.DownloadFile(info.DownloadUrl, fullPath);
-
-                return fullPath;
-            } 
         }
         
         private static readonly char[] InvalidFileNameChars = Path.GetInvalidFileNameChars();
