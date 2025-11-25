@@ -54,7 +54,7 @@ public class SiteADownloadService : AbstractSongDowloader, IMusicDownloadService
     public async Task<IEnumerable<Music>> FindMusicsAsync(string musicName)
     {
         // must set the value of SourceName
-        var musics = GetInfoSong(musicName,10);
+        var musics = GetInfoSong(musicName);
         
         return musics.Select(m => new Music()
         {
@@ -92,7 +92,7 @@ public class SiteADownloadService : AbstractSongDowloader, IMusicDownloadService
             driver.Quit();
         }
     }
-    protected override List<BasicInfoMusic> GetInfoSong(string inputName, int count)
+    protected override List<BasicInfoMusic> GetInfoSong(string inputName)
     {
         var driver = SetupDriver();
         try
@@ -107,7 +107,7 @@ public class SiteADownloadService : AbstractSongDowloader, IMusicDownloadService
 
             var songPages = mainSection[0].FindElements(By.CssSelector("a[href*='/mp3/']"));
 
-            for (int i = 0; i < count * 2 && i < songPages.Count() && i < 2 * MaxCountSongForSearchSong; i += 2)
+            for (int i = 0; i < songPages.Count() && i < 2 * MaxCountSongForSearchSong; i += 2)
             {
                 var t = FindApi(songPages[i].GetAttribute("href"));
                 res.Add(t);

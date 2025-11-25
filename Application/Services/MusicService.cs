@@ -43,7 +43,7 @@ public class MusicService : IMusicService
         return url;
     }
     
-    public async Task<IEnumerable<string>?> DownloadMusicsAsync(IEnumerable<Guid> ids)
+    public async Task<byte[]?> DownloadMusicsAsync(IEnumerable<Guid> ids)
     {
         List<string> musicUrls = new List<string>();
         
@@ -60,12 +60,20 @@ public class MusicService : IMusicService
             }
         }
         
-        return musicUrls;
+        var zipPath =  @"C:\Users\Werty\source\repos\Code\C#\WertyMusic\Presentation\bin\Debug\net9.0\Storage\Source_A\1.zip";
+            
+        CreateZipFromFileList(musicUrls,zipPath);
+
+        var fileBytes = await System.IO.File.ReadAllBytesAsync(zipPath);
+        
+        System.IO.File.Delete(zipPath);
+        
+        return fileBytes;
     }
 
     public async Task<IEnumerable<Music>> FindMusicsAsync(string sourceMusicName)
     {
-        var existsMusic = await _musicRepository.ExistsMusicByNameAsync(sourceMusicName);
+        var existsMusic = await _musicRepository.ExistsMusicBySourceNameAsync(sourceMusicName);
 
         if (existsMusic != null)
         {
@@ -113,5 +121,31 @@ public class MusicService : IMusicService
     public async Task<Music?> AddMusicAsync(Music music)
     {
         return await _musicRepository.AddMusicAsync(music);
+    }
+
+    public async Task<Music?> UpDateMusicAsync(Guid id, Music music)
+    {
+        return await _musicRepository.UpdateMusicAsync(id, music);
+    }
+
+    private static void CreateZipFromFileList(IEnumerable<string> filePaths, string zipPath)
+    {
+        using (FileStream zipStream = new FileStream(zipPath, FileMode.Create))
+        using (ZipArchive archive = new ZipArchive(zipStream, ZipArchiveMode.Create))
+        {
+            foreach (string filePath in filePaths)
+            {
+                if (System.IO.File.Exists(filePath))
+                {
+                    string fileName = Path.GetFileName(filePath);
+                    archive.CreateEntryFromFile(filePath, fileName);
+                    Console.WriteLine($"Добавлен файл: {fileName}");
+                }
+                else
+                {
+                    Console.WriteLine($"Файл не найден: {filePath}");
+                }
+            }
+        }
     }
 }

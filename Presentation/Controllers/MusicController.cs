@@ -27,7 +27,7 @@ public class MusicController : ControllerBase
         return Ok(listMusic);
     }
     
-    [HttpGet("allmusics")]
+    [HttpGet("musics")]
     public async Task<IActionResult> GetAllMusics()
     {
         IEnumerable<Music> listMusic = await _musicService.GetMusicsAsync();
@@ -35,20 +35,12 @@ public class MusicController : ControllerBase
         return Ok(listMusic);
     }
     
-    //Download, add to repository and send .mp3 file
     [HttpPost("download")]
     public async Task<IActionResult> Download([FromBody] DonwloadRequest request)
     {
-        var res = await _musicService.DownloadMusicsAsync(request.musicsId);
-
-        var zipPath =  @"C:\Users\Werty\source\repos\Code\C#\WertyMusic\Presentation\bin\Debug\net9.0\Storage\Source_A\1.zip";
-        CreateZipFromFileList(res,zipPath);
+        var zipFile = await _musicService.DownloadMusicsAsync(request.musicsId);
         
-        var fileBytes = await System.IO.File.ReadAllBytesAsync(zipPath);
-        
-        System.IO.File.Delete(zipPath);
-        
-        return File(fileBytes, "application/zip", "archive.zip");
+        return File(zipFile, "application/zip", "archive.zip");
     }
     
     [HttpGet("music/{id}")]
@@ -57,26 +49,5 @@ public class MusicController : ControllerBase
         var stream = await _musicService.GetFileMusicAsync(id);
         
         return File(stream, "audio/mpeg","temp_name" + ".mp3");
-    }
-    
-    static void CreateZipFromFileList(IEnumerable<string> filePaths, string zipPath)
-    {
-        using (FileStream zipStream = new FileStream(zipPath, FileMode.Create))
-        using (ZipArchive archive = new ZipArchive(zipStream, ZipArchiveMode.Create))
-        {
-            foreach (string filePath in filePaths)
-            {
-                if (System.IO.File.Exists(filePath))
-                {
-                    string fileName = Path.GetFileName(filePath);
-                    archive.CreateEntryFromFile(filePath, fileName);
-                    Console.WriteLine($"Добавлен файл: {fileName}");
-                }
-                else
-                {
-                    Console.WriteLine($"Файл не найден: {filePath}");
-                }
-            }
-        }
     }
 }
