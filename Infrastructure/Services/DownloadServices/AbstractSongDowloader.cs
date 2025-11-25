@@ -9,12 +9,10 @@ namespace Infrastructure.Services;
 public abstract class AbstractSongDowloader
     {
         protected string _webStorage =  @"C:\Users\Werty\source\repos\Code\C#\WertyMusic\Presentation\bin\Debug\net9.0\Storage\Source_A";
-
-
         
-        protected const int MaxCountSongForSearchSong = 5;
+        protected const int MaxCountSongForSearchSong = 1;
 
-        protected abstract List<BasicInfoMusic> GetInfoSong(string inputName, int count);
+        protected abstract List<BasicInfoMusic> GetInfoSong(string inputName);
         protected abstract string CreateUrlForSearch(string inputName);
 
         protected static IWebDriver SetupDriver()
