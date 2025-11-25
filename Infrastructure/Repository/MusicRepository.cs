@@ -10,21 +10,7 @@ public class MusicRepository : IMusicRepository
 
     public MusicRepository()
     {
-        var music = new Music()
-        {
-            Id = Guid.Parse("18f5eac0-3f0f-475a-baf8-b4e0bdd254b7"),
-            MusicName = "lol",
-            ArtistName = "werty",
-            CreationDate = DateTime.Now,
-            SiteSource = SiteSource.A,
-            Url =
-                @"C:\Users\Werty\source\repos\Code\C#\WertyMusic\Presentation\bin\Debug\net9.0\Storage\Source_A\Eminem feat Dina Rae - Superman (The Eminem Show 2002).mp3",
-            DownloadUrl = "www.werty",
-            SourceName = "lol"
-        };
-        
         _storage = new List<Music>();
-        _storage.Add(music);
     }
     
     public async Task<Music?> GetMusicByIdAsync(Guid id)
@@ -78,7 +64,7 @@ public class MusicRepository : IMusicRepository
         return t;
     }
 
-    public async Task<Music?> ExistsMusicAsync(string songName)
+    public async Task<Music?> ExistsMusicByNameAsync(string songName)
     {
         var res = _storage.Where(m => {
             return m.MusicName == songName;
@@ -92,5 +78,10 @@ public class MusicRepository : IMusicRepository
         {
             return res.First();
         }
+    }
+
+    public async Task<bool> ExistsMusicByIdAsync(Guid id)
+    {
+        return _storage.Any(x => x.Id == id);
     }
 }

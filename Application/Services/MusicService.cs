@@ -1,3 +1,5 @@
+using System.IO.Compression;
+using System.Runtime.ExceptionServices;
 using ClassLibrary1.Interfaces;
 using Domain.Interfaces;
 using Domain.Interfaces.Repository;
@@ -23,30 +25,47 @@ public class MusicService : IMusicService
         _musicRepository = musicRepository;
     }
     
-    public async Task<IEnumerable<Music>> DownloadMusicsAsync(string musicName)
+    public async Task<string?> DownloadMusicAsync(Guid id)
     {
-        var existsMusic = await _musicRepository.ExistsMusicAsync(musicName);
+        var existsMusic = await _musicRepository.ExistsMusicByIdAsync(id);
 
-        if (existsMusic != null)
+        if (!existsMusic)
         {
-            return [existsMusic];
+            return null;
+        }
+
+        var downloader = _downloadServices.First();
+
+        var music = await _musicRepository.GetMusicByIdAsync(id);
+
+        var url = (await downloader.DownloadMusicsAsync([music])).First();
+
+        return url;
+    }
+    
+    public async Task<IEnumerable<string>?> DownloadMusicsAsync(IEnumerable<Guid> ids)
+    {
+        List<string> musicUrls = new List<string>();
+        
+        foreach (var id in ids)
+        {
+            var t = await DownloadMusicAsync(id);
+            if (t == null)
+            {
+                return null;
+            }
+            else
+            {
+                musicUrls.Add(t);
+            }
         }
         
-        // must more strong logics (compare music from three different source site)
-        List<Music> musics = new List<Music>();
-        
-        foreach (var downloadService in _downloadServices)
-        {
-            var downloaded = await downloadService.DownloadMusicsAsync(musicName);
-            musics.AddRange(downloaded);
-        }
-        
-        return musics;
+        return musicUrls;
     }
 
-    public async Task<IEnumerable<Music>> FindMusicsAsync(string musicName)
+    public async Task<IEnumerable<Music>> FindMusicsAsync(string sourceMusicName)
     {
-        var existsMusic = await _musicRepository.ExistsMusicAsync(musicName);
+        var existsMusic = await _musicRepository.ExistsMusicByNameAsync(sourceMusicName);
 
         if (existsMusic != null)
         {
@@ -58,8 +77,13 @@ public class MusicService : IMusicService
         
         foreach (var downloadService in _downloadServices)
         {
-            var downloaded = await downloadService.FindMusicsAsync(musicName);
+            var downloaded = await downloadService.FindMusicsAsync(sourceMusicName);
             musics.AddRange(downloaded);
+        }
+
+        foreach (var music in musics)
+        {
+            await _musicRepository.AddMusicAsync(music);
         }
         
         return musics;
@@ -76,14 +100,14 @@ public class MusicService : IMusicService
         return await _fileSender.GetFileAsync(music);
     }
 
-    public async Task<Music?> GetMusicByNameAsync(string musicName)
-    {
-        return await _musicRepository.GetMusicsByNameAsync(musicName);
-    }
-
     public async Task<Music?> GetMusicByIdAsync(Guid id)
     {
         return await _musicRepository.GetMusicByIdAsync(id);
+    }
+
+    public async Task<IEnumerable<Music>?> GetMusicsAsync()
+    {
+        return await _musicRepository.GetMusicsAsync();
     }
 
     public async Task<Music?> AddMusicAsync(Music music)

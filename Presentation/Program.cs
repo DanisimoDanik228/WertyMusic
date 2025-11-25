@@ -10,7 +10,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 
-builder.Services.AddScoped<IMusicRepository,MusicRepository>();
+builder.Services.AddSingleton<IMusicRepository,MusicRepository>();
 
 builder.Services.AddScoped<IFileSender,FileSender>();
 
