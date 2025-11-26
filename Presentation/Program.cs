@@ -2,6 +2,7 @@ using ClassLibrary1.Interfaces;
 using ClassLibrary1.Services;
 using Domain.Interfaces;
 using Domain.Interfaces.Repository;
+using Infrastructure.Options;
 using Infrastructure.Repository;
 using Infrastructure.Services;
 using Infrastructure.Services.Files;
@@ -9,6 +10,8 @@ using Infrastructure.Services.Files;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
+
+builder.Services.Configure<StorageOptions>(builder.Configuration.GetSection("MusicOptions"));
 
 builder.Services.AddSingleton<IMusicRepository,MusicRepository>();
 
