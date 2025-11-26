@@ -15,4 +15,12 @@ public interface IMusicRepository
     
     Task<IEnumerable<Music>?> GetMusicsBySourceNameAsync(string sourceMusicName);
     Task<bool> ExistsMusicByIdAsync(Guid id);
+    
+    /// <summary>
+    ///  update only not null value in music param
+    /// </summary>
+    /// <param name="id"></param> 
+    /// <param name="music"></param>
+    /// <returns></returns>
+    Task<Music?> UpdateFieldMusicAsync(Guid id,Music music);
 }

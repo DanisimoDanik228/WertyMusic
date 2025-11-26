@@ -18,16 +18,9 @@ public class SiteADownloadService : BaseSongDowloader, IMusicDownloadService
 
     protected override string storageFolder { get; }
     protected override int _maxCountSongForSearchSong { get; }
-    private async Task<string?> DownloadMusicAsync(Music music)
+    public async Task<string?> DownloadMusicAsync(Music music)
     {
-        try
-        {
-            return DownloadMusic(music,storageFolder);
-        }
-        catch (Exception  ex)
-        {
-            return null;
-        }
+        return DownloadMusic(music,storageFolder);
     }
 
     public async Task<IEnumerable<string>?> DownloadMusicsAsync(List<Music> music)
@@ -37,10 +30,6 @@ public class SiteADownloadService : BaseSongDowloader, IMusicDownloadService
         for (int i = 0; i < music.Count; i++)
         {
             var path = await DownloadMusicAsync(music[i]);
-            if (path == null)
-            {
-                return null;
-            }
             
             musicUrls.Add(path);
             music[i].Url = path;

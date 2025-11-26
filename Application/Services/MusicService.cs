@@ -4,7 +4,9 @@ using ClassLibrary1.Interfaces;
 using Domain.Interfaces;
 using Domain.Interfaces.Repository;
 using Domain.Models;
+using Infrastructure.Options;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Options;
 
 namespace ClassLibrary1.Services;
 
@@ -13,16 +15,18 @@ public class MusicService : IMusicService
     private readonly IEnumerable<IMusicDownloadService> _downloadServices;
     private readonly IFileSender _fileSender;
     private readonly IMusicRepository _musicRepository;
-    
+    private readonly StorageOptions _storageOptions;
     public MusicService(
         IEnumerable<IMusicDownloadService> downloadServices,
         IFileSender fileSender,
-        IMusicRepository musicRepository
+        IMusicRepository musicRepository,
+        IOptions<StorageOptions> options
         )
     {
         _downloadServices = downloadServices;
         _fileSender = fileSender;
         _musicRepository = musicRepository;
+        _storageOptions = options.Value;
     }
     
     public async Task<string?> DownloadMusicAsync(Guid id)
@@ -43,8 +47,10 @@ public class MusicService : IMusicService
 
         var music = await _musicRepository.GetMusicByIdAsync(id);
 
-        var url = (await downloader.DownloadMusicsAsync([music])).First();
-
+        var url = await downloader.DownloadMusicAsync(music);
+        music.Url = url;
+        await _musicRepository.UpdateMusicAsync(id,music);
+        
         return url;
     }
     
@@ -68,7 +74,7 @@ public class MusicService : IMusicService
             }
         }
         
-        var zipPath =  @"C:\Users\Werty\source\repos\Code\C#\WertyMusic\Presentation\bin\Debug\net9.0\Storage\Source_A\1.zip";
+        var zipPath =  Path.Combine(_storageOptions.LocalStorage ,Guid.NewGuid().ToString() + ".zip");
             
         CreateZipFromFileList(musicUrls,zipPath);
 
@@ -104,8 +110,7 @@ public class MusicService : IMusicService
         
         return musics;
     }
-
-    // what param really need?
+    
     public async Task<Stream?> GetFileMusicAsync(Guid id)
     {
         var music = await _musicRepository.GetMusicByIdAsync(id);

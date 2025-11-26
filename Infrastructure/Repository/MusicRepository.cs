@@ -4,7 +4,7 @@ using Domain.Models;
 
 namespace Infrastructure.Repository;
 
-public class MusicRepository : IMusicRepository
+public class MusicRepository //: IMusicRepository
 {
     private readonly List<Music> _storage;
 
