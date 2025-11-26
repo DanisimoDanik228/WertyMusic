@@ -2,15 +2,22 @@ using ClassLibrary1.Interfaces;
 using ClassLibrary1.Services;
 using Domain.Interfaces;
 using Domain.Interfaces.Repository;
+using Infrastructure.DBContext;
 using Infrastructure.Repository;
 using Infrastructure.Services;
 using Infrastructure.Services.Files;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Configuration.AddJsonFile("appsettings.json");
+
 builder.Services.AddControllers();
 
-builder.Services.AddSingleton<IMusicRepository,MusicRepository>();
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddScoped<IMusicRepository,MusicDBRepository>();
 
 builder.Services.AddScoped<IFileSender,FileSender>();
 

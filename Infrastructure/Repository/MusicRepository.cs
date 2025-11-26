@@ -64,20 +64,9 @@ public class MusicRepository : IMusicRepository
         return t;
     }
 
-    public async Task<Music?> ExistsMusicBySourceNameAsync(string songName)
+    public async Task<IEnumerable<Music>?> GetMusicsBySourceNameAsync(string songName)
     {
-        var res = _storage.Where(m => {
-            return m.MusicName == songName;
-        });
-        
-        if (res.Count() == 0)
-        {
-            return null;
-        }
-        else
-        {
-            return res.First();
-        }
+         return _storage.Where(m => m.MusicName == songName);
     }
 
     public async Task<bool> ExistsMusicByIdAsync(Guid id)

@@ -27,11 +27,16 @@ public class MusicService : IMusicService
     
     public async Task<string?> DownloadMusicAsync(Guid id)
     {
-        var existsMusic = await _musicRepository.ExistsMusicByIdAsync(id);
+        var existsMusic = await _musicRepository.GetMusicByIdAsync(id);
 
-        if (!existsMusic)
+        if (existsMusic == null)
         {
             return null;
+        }
+
+        if (existsMusic.Url != null)
+        {
+            return existsMusic.Url;
         }
 
         var downloader = _downloadServices.First();
@@ -58,6 +63,7 @@ public class MusicService : IMusicService
             {
                 var music = await _musicRepository.GetMusicByIdAsync(id);
                 music.Url = t;
+                await _musicRepository.UpdateMusicAsync(music.Id,music);
                 musicUrls.Add(t);
             }
         }
@@ -75,11 +81,11 @@ public class MusicService : IMusicService
 
     public async Task<IEnumerable<Music>> FindMusicsAsync(string sourceMusicName)
     {
-        var existsMusic = await _musicRepository.ExistsMusicBySourceNameAsync(sourceMusicName);
+        var existsMusic = await _musicRepository.GetMusicsBySourceNameAsync(sourceMusicName);
 
-        if (existsMusic != null)
+        if (existsMusic != null && existsMusic.Count() > 0)
         {
-            return [existsMusic];
+            return existsMusic;
         }
         
         // must more strong logics (compare music from three different source site)
@@ -122,6 +128,8 @@ public class MusicService : IMusicService
 
     public async Task<Music?> AddMusicAsync(Music music)
     {
+        music.Id = Guid.NewGuid();
+        
         return await _musicRepository.AddMusicAsync(music);
     }
 
