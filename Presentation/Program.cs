@@ -3,6 +3,7 @@ using ClassLibrary1.Services;
 using Domain.Interfaces;
 using Domain.Interfaces.Repository;
 using Infrastructure.DBContext;
+using Infrastructure.Options;
 using Infrastructure.Repository;
 using Infrastructure.Services;
 using Infrastructure.Services.Files;
@@ -18,6 +19,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddScoped<IMusicRepository,MusicDBRepository>();
+builder.Services.Configure<StorageOptions>(builder.Configuration.GetSection("MusicOptions"));
 
 builder.Services.AddScoped<IFileSender,FileSender>();
 
