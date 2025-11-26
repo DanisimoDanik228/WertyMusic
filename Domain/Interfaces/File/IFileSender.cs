@@ -1,7 +1,7 @@
 using Domain.Models;
 using Microsoft.AspNetCore.Http;
 
-namespace Domain.Interfaces;
+namespace Domain.Interfaces.File;
 
 public interface IFileSender
 {

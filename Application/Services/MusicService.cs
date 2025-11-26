@@ -2,6 +2,8 @@ using System.IO.Compression;
 using System.Runtime.ExceptionServices;
 using ClassLibrary1.Interfaces;
 using Domain.Interfaces;
+using Domain.Interfaces.DownloadServices;
+using Domain.Interfaces.File;
 using Domain.Interfaces.Repository;
 using Domain.Models;
 using Infrastructure.Options;
