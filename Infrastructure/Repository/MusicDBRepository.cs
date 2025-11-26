@@ -1,0 +1,72 @@
+using Domain.Interfaces.Repository;
+using Domain.Models;
+using Infrastructure.DBContext;
+using Microsoft.EntityFrameworkCore;
+
+namespace Infrastructure.Repository;
+
+public class MusicDBRepository : IMusicRepository
+{
+    private readonly AppDbContext _context;
+
+    public MusicDBRepository(AppDbContext context)
+    {
+        _context = context;
+    }
+    
+    public async Task<Music?> GetMusicByIdAsync(Guid id)
+    {
+        return await _context.Musics.AsNoTracking().FirstOrDefaultAsync(m => m.Id == id);
+    }
+
+    public async Task<IEnumerable<Music>?> GetMusicsAsync()
+    {
+        return await _context.Musics.AsNoTracking().ToListAsync();
+    }
+
+    public async Task<Music?> AddMusicAsync(Music music)
+    {
+        var m = await _context.Musics.AddAsync(music);
+
+        await _context.SaveChangesAsync();
+        
+        return m.Entity;
+    }
+
+    public async Task<Music?> UpdateMusicAsync(Guid id, Music music)
+    {
+        var m = await _context.Musics.FirstOrDefaultAsync(m => m.Id == id);
+        
+        m.ArtistName = music.ArtistName;
+        m.CreationDate = music.CreationDate;
+        m.DownloadUrl = music.DownloadUrl;
+        m.MusicName = music.MusicName;
+        m.SiteSource = music.SiteSource;
+        m.Url = music.Url;
+        
+        _context.Musics.Update(m);
+        
+        await _context.SaveChangesAsync();
+
+        return m;
+    }
+
+    public async Task<Music?> DeleteMusicByIdAsync(Guid id)
+    {
+        var m = await _context.Musics.FirstOrDefaultAsync(m => m.Id == id);
+        _context.Musics.Remove(m);
+
+        await _context.SaveChangesAsync();
+        return m;
+    }
+
+    public async Task<IEnumerable<Music>?> GetMusicsBySourceNameAsync(string sourceMusicName)
+    {
+        return await _context.Musics.AsNoTracking().Where(m => m.MusicName == sourceMusicName).ToListAsync();
+    }
+
+    public Task<bool> ExistsMusicByIdAsync(Guid id)
+    {
+        return _context.Musics.AsNoTracking().AnyAsync(m => m.Id == id);
+    }
+}
