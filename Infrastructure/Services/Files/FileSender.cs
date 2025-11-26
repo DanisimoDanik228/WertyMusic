@@ -1,4 +1,5 @@
 using Domain.Interfaces;
+using Domain.Interfaces.File;
 using Domain.Models;
 
 namespace Infrastructure.Services.Files;

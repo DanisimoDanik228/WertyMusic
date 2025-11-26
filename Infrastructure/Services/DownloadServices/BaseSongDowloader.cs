@@ -6,7 +6,7 @@ using Microsoft.Extensions.Options;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 
-namespace Infrastructure.Services;
+namespace Infrastructure.Services.DownloadServices;
 
 public abstract class BaseSongDowloader
 {

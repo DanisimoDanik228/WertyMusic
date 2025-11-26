@@ -1,12 +1,13 @@
 using System.Net;
 using Domain.Enum;
 using Domain.Interfaces;
+using Domain.Interfaces.DownloadServices;
 using Domain.Models;
 using Infrastructure.Options;
 using Microsoft.Extensions.Options;
 using OpenQA.Selenium;
 
-namespace Infrastructure.Services;
+namespace Infrastructure.Services.DownloadServices;
 
 public class SiteADownloadService : BaseSongDowloader, IMusicDownloadService
 {

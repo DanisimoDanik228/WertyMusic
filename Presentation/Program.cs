@@ -1,11 +1,14 @@
 using ClassLibrary1.Interfaces;
 using ClassLibrary1.Services;
 using Domain.Interfaces;
+using Domain.Interfaces.DownloadServices;
+using Domain.Interfaces.File;
 using Domain.Interfaces.Repository;
 using Infrastructure.DBContext;
 using Infrastructure.Options;
 using Infrastructure.Repository;
 using Infrastructure.Services;
+using Infrastructure.Services.DownloadServices;
 using Infrastructure.Services.Files;
 using Microsoft.EntityFrameworkCore;
 
