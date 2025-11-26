@@ -8,6 +8,7 @@ namespace Infrastructure.Repository;
 public class MusicDBRepository : IMusicRepository
 {
     private readonly AppDbContext _context;
+    private IMusicRepository _musicRepositoryImplementation;
 
     public MusicDBRepository(AppDbContext context)
     {
@@ -62,11 +63,30 @@ public class MusicDBRepository : IMusicRepository
 
     public async Task<IEnumerable<Music>?> GetMusicsBySourceNameAsync(string sourceMusicName)
     {
-        return await _context.Musics.AsNoTracking().Where(m => m.MusicName == sourceMusicName).ToListAsync();
+        return await _context.Musics.AsNoTracking().Where(m => m.SourceName == sourceMusicName).ToListAsync();
     }
 
     public Task<bool> ExistsMusicByIdAsync(Guid id)
     {
         return _context.Musics.AsNoTracking().AnyAsync(m => m.Id == id);
+    }
+
+    public async Task<Music?> UpdateFieldMusicAsync(Guid id, Music music)
+    {
+        var m = await _context.Musics.FirstOrDefaultAsync(m => m.Id == id);
+        if (m == null)
+        {
+            return null;
+        }
+        
+        m.ArtistName = (music.ArtistName == null) ? m.ArtistName : music.ArtistName;
+        m.Url = (music.Url == null) ? m.Url : music.Url;
+        m.CreationDate = (music.CreationDate == null) ? m.CreationDate : music.CreationDate;
+        m.DownloadUrl = (music.DownloadUrl == null) ? m.DownloadUrl : music.DownloadUrl;
+        m.MusicName = (music.MusicName == null) ? m.MusicName : music.MusicName;
+        m.SourceName = (music.SourceName == null) ? m.SourceName : music.SourceName;
+        
+        await _context.SaveChangesAsync();
+        return m;
     }
 }
