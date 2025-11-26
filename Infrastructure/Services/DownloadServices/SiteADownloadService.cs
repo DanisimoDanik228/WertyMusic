@@ -54,17 +54,8 @@ public class SiteADownloadService : BaseSongDowloader, IMusicDownloadService
     {
         // must set the value of SourceName
         var musics = GetInfoSong(musicName);
-        
-        return musics.Select(m => new Music()
-        {
-            Id = Guid.NewGuid(),
-            MusicName = m.MusicName,
-            ArtistName = m.ArtistName,
-            DownloadUrl = m.DownloadUrl,
-            SourceName = musicName,
-            CreationDate = DateTime.UtcNow
 
-        });
+        return musics;
     }
 
     private static Music FindApi(string url)
@@ -89,6 +80,7 @@ public class SiteADownloadService : BaseSongDowloader, IMusicDownloadService
             driver.Quit();
         }
     }
+    
     private List<Music> GetInfoSong(string inputName)
     {
         var driver = SetupDriver();
