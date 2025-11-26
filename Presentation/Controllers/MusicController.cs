@@ -30,7 +30,7 @@ public class MusicController : ControllerBase
     [HttpGet("musics")]
     public async Task<IActionResult> GetAllMusics()
     {
-        IEnumerable<Music> listMusic = await _musicService.GetMusicsAsync();
+        var listMusic = await _musicService.GetMusicsAsync();
         
         return Ok(listMusic);
     }
