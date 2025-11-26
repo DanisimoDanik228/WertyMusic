@@ -67,19 +67,19 @@ public class SiteADownloadService : BaseSongDowloader, IMusicDownloadService
         });
     }
 
-    private static BasicInfoMusic FindApi(string url)
+    private static Music FindApi(string url)
     {
         var driver = SetupDriver();
         try
         {
             driver.Navigate().GoToUrl(url);
-            BasicInfoMusic info = new();
+            Music info = new();
 
             var h1 = driver.FindElement(By.TagName("h1"));
             string[] parts = SanitizeFileName(h1.Text).Trim().Split(new[] { " - " }, 2, StringSplitOptions.None);
             info.ArtistName = parts[0].Trim();
             info.MusicName = parts.Length > 1 ? parts[1].Trim() : "";
-            info.ArtistUrl = h1.FindElement(By.CssSelector("a")).GetAttribute("href");
+            //info.ArtistName = h1.FindElement(By.CssSelector("a")).GetAttribute("href");
             info.DownloadUrl = driver.FindElement(By.CssSelector("a.b_btn.download.no-ajix[href*='/api/']")).GetAttribute("href");
             
             return info;
@@ -89,12 +89,12 @@ public class SiteADownloadService : BaseSongDowloader, IMusicDownloadService
             driver.Quit();
         }
     }
-    private List<BasicInfoMusic> GetInfoSong(string inputName)
+    private List<Music> GetInfoSong(string inputName)
     {
         var driver = SetupDriver();
         try
         {
-            List<BasicInfoMusic> res = new();
+            List<Music> res = new();
             driver.Navigate().GoToUrl(CreateUrlForSearch(inputName));
 
             var mainSection = driver.FindElements(By.CssSelector("div.main"));
