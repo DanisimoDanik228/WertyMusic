@@ -2,17 +2,27 @@ using System.Net;
 using Domain.Enum;
 using Domain.Interfaces;
 using Domain.Models;
+using Infrastructure.Options;
+using Microsoft.Extensions.Options;
 using OpenQA.Selenium;
 
 namespace Infrastructure.Services;
 
-public class SiteADownloadService : AbstractSongDowloader, IMusicDownloadService
-{ 
+public class SiteADownloadService : BaseSongDowloader, IMusicDownloadService
+{
+    public SiteADownloadService(IOptions<StorageOptions> options) : base(options)
+    {
+        this.storageFolder = Path.Combine(_storageOptions.LocalStorage,"Source_A");
+        this._maxCountSongForSearchSong = 5;
+    }
+
+    protected override string storageFolder { get; }
+    protected override int _maxCountSongForSearchSong { get; }
     private async Task<string?> DownloadMusicAsync(Music music)
     {
         try
         {
-            return DownloadMusic(music,_webStorage);
+            return DownloadMusic(music,storageFolder);
         }
         catch (Exception  ex)
         {
@@ -82,8 +92,6 @@ public class SiteADownloadService : AbstractSongDowloader, IMusicDownloadService
             info.MusicName = parts.Length > 1 ? parts[1].Trim() : "";
             info.ArtistUrl = h1.FindElement(By.CssSelector("a")).GetAttribute("href");
             info.DownloadUrl = driver.FindElement(By.CssSelector("a.b_btn.download.no-ajix[href*='/api/']")).GetAttribute("href");
-
-            
             
             return info;
         }
@@ -92,7 +100,7 @@ public class SiteADownloadService : AbstractSongDowloader, IMusicDownloadService
             driver.Quit();
         }
     }
-    protected override List<BasicInfoMusic> GetInfoSong(string inputName)
+    private List<BasicInfoMusic> GetInfoSong(string inputName)
     {
         var driver = SetupDriver();
         try
@@ -107,7 +115,7 @@ public class SiteADownloadService : AbstractSongDowloader, IMusicDownloadService
 
             var songPages = mainSection[0].FindElements(By.CssSelector("a[href*='/mp3/']"));
 
-            for (int i = 0; i < songPages.Count() && i < 2 * MaxCountSongForSearchSong; i += 2)
+            for (int i = 0; i < songPages.Count() && i < 2 * _maxCountSongForSearchSong; i += 2)
             {
                 var t = FindApi(songPages[i].GetAttribute("href"));
                 res.Add(t);
@@ -120,6 +128,7 @@ public class SiteADownloadService : AbstractSongDowloader, IMusicDownloadService
             driver.Quit();
         }
     }
+
     protected override string CreateUrlForSearch(string inputName)
     {
         return $"https://sefon.pro/search/{inputName.Replace(" ", "%20")}";
