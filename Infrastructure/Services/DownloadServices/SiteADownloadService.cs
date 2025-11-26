@@ -73,7 +73,7 @@ public class SiteADownloadService : BaseSongDowloader, IMusicDownloadService
             ArtistName = m.ArtistName,
             DownloadUrl = m.DownloadUrl,
             SourceName = musicName,
-            CreationDate = DateTime.Now
+            CreationDate = DateTime.UtcNow
 
         });
     }

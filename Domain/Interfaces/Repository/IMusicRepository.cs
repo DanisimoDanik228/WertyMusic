@@ -13,6 +13,6 @@ public interface IMusicRepository
     
     Task<Music?> DeleteMusicByIdAsync(Guid id);
     
-    Task<Music?> ExistsMusicBySourceNameAsync(string sourceMusicName);
+    Task<IEnumerable<Music>?> GetMusicsBySourceNameAsync(string sourceMusicName);
     Task<bool> ExistsMusicByIdAsync(Guid id);
 }
