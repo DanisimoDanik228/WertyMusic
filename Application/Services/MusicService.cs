@@ -14,21 +14,24 @@ namespace ClassLibrary1.Services;
 
 public class MusicService : IMusicService
 {
-    private readonly IEnumerable<IMusicDownloadService> _downloadServices;
+    private readonly IEnumerable<IMusicFindService> _downloadServices;
     private readonly IFileSender _fileSender;
     private readonly IMusicRepository _musicRepository;
     private readonly StorageOptions _storageOptions;
+    private readonly IDownloaderService _downloaderService;
     public MusicService(
-        IEnumerable<IMusicDownloadService> downloadServices,
+        IEnumerable<IMusicFindService> downloadServices,
         IFileSender fileSender,
         IMusicRepository musicRepository,
-        IOptions<StorageOptions> options
+        IOptions<StorageOptions> options,
+        IDownloaderService downloaderService
         )
     {
         _downloadServices = downloadServices;
         _fileSender = fileSender;
         _musicRepository = musicRepository;
         _storageOptions = options.Value;
+        _downloaderService = downloaderService;
     }
     
     public async Task<string?> DownloadMusicAsync(Guid id)
@@ -45,13 +48,9 @@ public class MusicService : IMusicService
             return existsMusic.Url;
         }
 
-        var downloader = _downloadServices.First();
-
-        var music = await _musicRepository.GetMusicByIdAsync(id);
-
-        var url = await downloader.DownloadMusicAsync(music);
-        music.Url = url;
-        await _musicRepository.UpdateMusicAsync(id,music);
+        var url = await _downloaderService.DownloadMusicAsync(existsMusic,_storageOptions.LocalStorage);
+        existsMusic.Url = url;
+        await _musicRepository.UpdateMusicAsync(id,existsMusic);
         
         return url;
     }

@@ -10,35 +10,13 @@ using OpenQA.Selenium;
 
 namespace Infrastructure.Services.DownloadServices;
 
-public class SiteADownloadService : BaseSongDowloader, IMusicDownloadService
+public class SiteAFindService : BaseMusicFind, IMusicFindService
 {
-    public SiteADownloadService(IOptions<StorageOptions> options) : base(options)
+    public SiteAFindService(IOptions<StorageOptions> options) : base(options)
     {
-        this._storageFolder = Path.Combine(_storageOptions.LocalStorage,"Source_A");
         this._maxCountSongForSearchSong = 5;
     }
-
-    protected override string _storageFolder { get; }
     protected override int _maxCountSongForSearchSong { get; }
-    public async Task<string?> DownloadMusicAsync(Music music)
-    {
-        return DownloadMusic(music,_storageFolder);
-    }
-
-    public async Task<IEnumerable<string>?> DownloadMusicsAsync(List<Music> music)
-    {
-        List<string> musicUrls = new List<string>();
-
-        for (int i = 0; i < music.Count; i++)
-        {
-            var path = await DownloadMusicAsync(music[i]);
-            
-            musicUrls.Add(path);
-            music[i].Url = path;
-        }
-
-        return musicUrls;
-    }
 
     private static string DownloadMusic(Music info, string destinationDowloadFolder)
     {

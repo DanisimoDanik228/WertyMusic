@@ -8,13 +8,12 @@ using OpenQA.Selenium.Chrome;
 
 namespace Infrastructure.Services.DownloadServices;
 
-public abstract class BaseSongDowloader
+public abstract class BaseMusicFind
 {
-    protected abstract string _storageFolder { get; }
     protected abstract int _maxCountSongForSearchSong { get; }
 
     protected StorageOptions _storageOptions;
-    public BaseSongDowloader(IOptions<StorageOptions> options)
+    public BaseMusicFind(IOptions<StorageOptions> options)
     {
         _storageOptions = options.Value;
     }

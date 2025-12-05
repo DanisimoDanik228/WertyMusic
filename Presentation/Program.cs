@@ -8,6 +8,7 @@ using Infrastructure.DBContext;
 using Infrastructure.Options;
 using Infrastructure.Repository;
 using Infrastructure.Services;
+using Infrastructure.Services.DownloadService;
 using Infrastructure.Services.DownloadServices;
 using Infrastructure.Services.Files;
 using Microsoft.EntityFrameworkCore;
@@ -27,9 +28,10 @@ builder.Services.Configure<StorageOptions>(builder.Configuration.GetSection("Mus
 builder.Services.AddScoped<IFileSender,FileSender>();
 
 builder.Services.AddScoped<IMusicService,MusicService>();
-builder.Services.AddScoped<IMusicDownloadService, SefonDownloader>();
-// builder.Services.AddScoped<IMusicDownloadService, SiteBDownloadService>();
-// builder.Services.AddScoped<IMusicDownloadService, SiteCDownloadService>();
+builder.Services.AddScoped<IDownloaderService,MusicDownloader>();
+builder.Services.AddScoped<IMusicFindService, SefonFindMusic>();
+// builder.Services.AddScoped<IMusicFindService, SiteBDownloadService>();
+// builder.Services.AddScoped<IMusicFindService, SiteCDownloadService>();
 
 var app = builder.Build();
 
