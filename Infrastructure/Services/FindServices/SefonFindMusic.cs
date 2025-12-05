@@ -13,18 +13,15 @@ using PuppeteerSharp;
 
 namespace Infrastructure.Services.DownloadServices;
 
-public class SefonDownloader : BaseSongDowloader, IMusicDownloadService
+public class SefonFindMusic : BaseMusicFind, IMusicFindService
 {    
     private IBrowser? _browser;
-    protected override string _storageFolder { get; }
     protected override int _maxCountSongForSearchSong { get; }
     
-    public SefonDownloader(IOptions<StorageOptions> options) : base(options)
+    
+    public SefonFindMusic(IOptions<StorageOptions> options) : base(options)
     {        
-        this._storageFolder = Path.Combine(_storageOptions.LocalStorage,"Source_A");
         this._maxCountSongForSearchSong = 5;
-        
-
     }
     
     private static string CreateUrlForSearch(string inputName)
@@ -92,36 +89,7 @@ public class SefonDownloader : BaseSongDowloader, IMusicDownloadService
                 res.Add(info);
             }
         }
-
         
         return res;
-    }
-
-    public async Task<IEnumerable<string>?> DownloadMusicsAsync(List<Music> music)
-    {
-        List<string> musicUrls = new List<string>();
-
-        for (int i = 0; i < music.Count; i++)
-        {
-            var path = await DownloadMusicAsync(music[i]);
-            
-            musicUrls.Add(path);
-            music[i].Url = path;
-        }
-
-        return musicUrls;
-    }
-
-    public async Task<string?> DownloadMusicAsync(Music music)
-    {
-        using (var client = new WebClient())
-        {
-            var filename = $"{music.MusicName} - {music.ArtistName}";
-            var fullPath = Path.Combine(_storageFolder, filename) + ".mp3";
-            
-            client.DownloadFile(music.DownloadUrl, fullPath);
-
-            return fullPath;
-        } 
     }
 }
