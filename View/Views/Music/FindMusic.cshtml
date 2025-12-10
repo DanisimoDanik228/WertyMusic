@@ -29,3 +29,13 @@
         <p>По запросу "@ViewBag.Query" ничего не найдено</p>
     }
 }
+
+@if (Model != null && Model.Any())
+{
+    <form asp-action="DownloadZip" method="post" style="margin-top: 20px;">
+        <input type="hidden" name="query" value="@ViewBag.Query" />
+        <button type="submit">
+            📥 Скачать все найденные песни (@Model.Count())
+        </button>
+    </form>
+}

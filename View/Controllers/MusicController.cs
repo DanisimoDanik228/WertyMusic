@@ -10,52 +10,22 @@ namespace View.Controllers;
 
 public class MusicController : Controller
 {
+    private const string FoundMusicIdsKey = "FoundMusicIds";
     private readonly IMusicService _musicService;
 
     public MusicController(IMusicService musicService)
     {
         _musicService = musicService;
     }
+
     
-    // [HttpPost("musics")]
-    // public async Task<IActionResult> FindMusics([FromBody] FindRequest request)
-    // {
-    //     IEnumerable<Music> listMusic = await _musicService.FindMusicsAsync(request.musicName);
-    //     
-    //     return Ok(listMusic);
-    // }
-    //
-    // [HttpGet("musics")]
-    // public async Task<IActionResult> GetAllMusics()
-    // {
-    //     var listMusic = await _musicService.GetMusicsAsync();
-    //     
-    //     return Ok(listMusic);
-    // }
-    //
-    // [HttpPost("download")]
-    // public async Task<IActionResult> Download([FromBody] DonwloadRequest request)
-    // {
-    //     var zipFile = await _musicService.DownloadMusicsAsync(request.musicsId);
-    //     
-    //     return File(zipFile, "application/zip", "archive.zip");
-    // }
-    //
-    // [HttpGet("music/{id}")]
-    // public async Task<IActionResult> GetMusicFile(Guid id)
-    // {
-    //     var stream = await _musicService.GetFileMusicAsync(id);
-    //     
-    //     return File(stream, "audio/mpeg","temp_name" + ".mp3");
-    // }
-
-
-
-
     [HttpPost]
     public async Task<IActionResult> FindMusic(string query)
     {
         var results = await _musicService.FindMusicsAsync(query);
+
+        TempData[FoundMusicIdsKey] = System.Text.Json.JsonSerializer.Serialize(results.Select(x => x.Id));
+        
         return View(results);
     }
     
@@ -71,5 +41,15 @@ public class MusicController : Controller
         var results = await _musicService.GetMusicsAsync();
             
         return View(results);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> DownloadZip()
+    {
+        var idsJson = TempData[FoundMusicIdsKey] as string;
+        var ids = System.Text.Json.JsonSerializer.Deserialize<List<Guid>>(idsJson);
+        var zipFile = await _musicService.DownloadMusicsAsync(ids);
+        
+        return File(zipFile, "application/zip", "archive.zip");
     }
 }
