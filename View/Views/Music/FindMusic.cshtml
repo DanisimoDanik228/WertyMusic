@@ -1,0 +1,31 @@
+@model IEnumerable<Domain.Models.Music>
+
+<h1>Поиск песен</h1>
+
+<a href="/">← На главную</a>
+<a href="/Music/AllMusics" style="margin-left:20px">📀 Все песни</a>
+
+
+<form asp-action="FindMusic" method="post">
+    <input name="query" />
+    <button>Поиск</button>
+</form>
+
+<!-- Результаты -->
+@if (Model != null)
+{
+    if (Model.Any())
+    {
+        <h3>Найдено песен: @Model.Count()</h3>
+        <ul>
+            @foreach (var song in Model)
+            {
+                <li><strong>@song.MusicName</strong> - @song.ArtistName (@song.SourceName)</li>
+            }
+        </ul>
+    }
+    else if (!string.IsNullOrEmpty(ViewBag.Query))
+    {
+        <p>По запросу "@ViewBag.Query" ничего не найдено</p>
+    }
+}
