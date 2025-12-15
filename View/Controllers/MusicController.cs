@@ -10,8 +10,10 @@ namespace View.Controllers;
 
 public class MusicController : Controller
 {
-    private const string _findMusicView = "BeautifulMusic/BeautyFindMusic"; //"FindMusic"
-    private const string _allMusicView = "BeautifulMusic/BeautyAllMusics"; //"AllMusics"
+    private const string _findMusicView = "BeautifulMusic/BeautyFindMusic"; 
+    //private const string _findMusicView = "FindMusic";
+    private const string _allMusicView = "BeautifulMusic/BeautyAllMusics";
+    //private const string _allMusicView = "AllMusics";
     
     private const string FoundMusicIdsKey = "FoundMusicIds";
     private readonly IMusicService _musicService;
