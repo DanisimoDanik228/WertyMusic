@@ -157,6 +157,23 @@
             font-size: 1.1rem;
         }
 
+        .download-link {
+            color: #ffb347;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 4px;
+            background: rgba(255, 179, 71, 0.1);
+        }
+
+        .download-link:hover {
+            color: #ff8c00;
+            background: rgba(255, 179, 71, 0.2);
+            text-decoration: underline;
+        }
+        
         .download-all {
             margin-top: 25px;
             text-align: right;
@@ -212,7 +229,8 @@
                 <tr>
                     <th>Название</th>
                     <th>Исполнитель</th>
-                    <th>Источник</th>
+                    <th>Ресурс</th>
+                    <th>Ссылка на скачивание</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -221,7 +239,8 @@
                     <tr>
                         <td class="music-name">@song.MusicName</td>
                         <td class="artist-name">@song.ArtistName</td>
-                        <td class="source-name">@song.SourceName</td>
+                        <td class="source-name">@song.SiteSource</td>
+                        <td><a href="@song.DownloadUrl" class="download-link">Скачать</a></td>
                     </tr>
                 }
                 </tbody>
