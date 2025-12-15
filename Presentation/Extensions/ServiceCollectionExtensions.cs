@@ -27,13 +27,17 @@ public static class ServiceCollectionExtensions
             options.UseNpgsql(configuration.GetConnectionString("DefaultConnection")));
 
         services.AddScoped<IMusicRepository, MusicDBRepository>();
+        
         services.Configure<StorageOptions>(configuration.GetSection("StorageOptions"));
+        
         services.AddScoped<IFileSender, FileSender>();
+        
         services.AddScoped<IMusicService, MusicService>();
+        
         services.AddScoped<IDownloaderService, MusicDownloader>();
+        
+        services.AddScoped<IMusicFindService, HitmoFindMusic>();  
         services.AddScoped<IMusicFindService, SefonFindMusic>();
-        // services.AddScoped<IMusicFindService, SiteBDownloadService>();
-        // services.AddScoped<IMusicFindService, SiteCDownloadService>();
 
         return services;
     }
