@@ -10,6 +10,9 @@ namespace View.Controllers;
 
 public class MusicController : Controller
 {
+    private const string _findMusicView = "BeautifulMusic/BeautyFindMusic"; //"FindMusic"
+    private const string _allMusicView = "BeautifulMusic/BeautyAllMusics"; //"AllMusics"
+    
     private const string FoundMusicIdsKey = "FoundMusicIds";
     private readonly IMusicService _musicService;
 
@@ -17,7 +20,7 @@ public class MusicController : Controller
     {
         _musicService = musicService;
     }
-
+    
     
     [HttpPost]
     public async Task<IActionResult> FindMusic(string query)
@@ -26,13 +29,13 @@ public class MusicController : Controller
 
         TempData[FoundMusicIdsKey] = System.Text.Json.JsonSerializer.Serialize(results.Select(x => x.Id));
         
-        return View(results);
+        return View(_findMusicView,results);
     }
     
     [HttpGet]
     public async Task<IActionResult> FindMusic()
     {
-        return View();
+        return View(_findMusicView);
     }
     
     [HttpGet]
@@ -40,7 +43,7 @@ public class MusicController : Controller
     {
         var results = await _musicService.GetMusicsAsync();
             
-        return View(results);
+        return View(_allMusicView,results);
     }
 
     [HttpPost]
