@@ -11,55 +11,16 @@ using Infrastructure.Services.DownloadServices;
 using Infrastructure.Services.Files;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using WertyMusic.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Configuration.AddJsonFile("appsettings.json");
-builder.Services.AddRazorPages();
-builder.Services.AddControllers();
-builder.Services.AddHttpClient();
-builder.Services.AddControllersWithViews();
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
-
-builder.Services.AddScoped<IMusicRepository,MusicDBRepository>();
-builder.Services.Configure<StorageOptions>(builder.Configuration.GetSection("StorageOptions"));
-builder.Services.AddScoped<IFileSender,FileSender>();
-
-builder.Services.AddScoped<IMusicService,MusicService>();
-builder.Services.AddScoped<IDownloaderService,MusicDownloader>();
-builder.Services.AddScoped<IMusicFindService, SefonFindMusic>();
-// builder.Services.AddScoped<IMusicFindService, SiteBDownloadService>();
-// builder.Services.AddScoped<IMusicFindService, SiteCDownloadService>();
+builder.Services.AddCustomServices(builder.Configuration);
 
 var app = builder.Build();
 
-using (var scope = app.Services.CreateScope())
-{
-    var options = scope.ServiceProvider
-        .GetRequiredService<IOptions<StorageOptions>>();
-    
-    var directoryPath = options.Value.LocalStorage;
-    if (!Directory.Exists(directoryPath))
-    {
-        Directory.CreateDirectory(directoryPath);
-    }
-}
-
-app.UseRouting();
-app.MapControllers();
-app.MapRazorPages();
-
-app.UseHttpsRedirection();
-app.UseRouting();
-
-app.UseAuthorization();
-
-app.MapStaticAssets();
-
-app.MapControllerRoute(
-        name: "default",
-        pattern: "{controller=BasiMusic}/{action=Index}/{id?}")
-    .WithStaticAssets();
+app.UseStorageDirectory();
+app.UseCustomRouting();
 
 app.Run();
