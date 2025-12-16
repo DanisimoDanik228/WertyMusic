@@ -25,6 +25,29 @@ public class HitmoFindMusic  : BaseMusicFind, IMusicFindService
         return $"https://eu.hitmo-top.com/search?q={inputName.Replace(" ", "%20")}";
     }
 
+    private static async Task<string> FindArtistUrl(string musicUrl)
+    {
+        var chromeOptions = new ChromeOptions();
+        chromeOptions.AddArgument("--headless");
+
+        string artistUrl;
+        using (IWebDriver driver = new ChromeDriver(chromeOptions))
+        {
+            
+            driver.Navigate().GoToUrl(musicUrl);
+
+            string htmlContent = driver.PageSource;
+
+            var document = new HtmlDocument();
+            document.LoadHtml(htmlContent);
+
+            var artistTag = document.DocumentNode.SelectSingleNode(".//a[@class='breadcrumbs__link play-attr__link']");
+            artistUrl = "https://eu.hitmo-top.com" + artistTag?.GetAttributeValue("href", "") ?? "";
+        }
+        
+        return artistUrl;
+    }
+
     private static string FixSongName(string inputName)
     {
         int startIndex = 0;
@@ -68,6 +91,9 @@ public class HitmoFindMusic  : BaseMusicFind, IMusicFindService
                 music.ArtistName = liElement.SelectSingleNode(".//div[@class='track__desc']")?.InnerText; 
                 var firstMusicName = liElement.SelectSingleNode(".//div[@class='track__title']")?.InnerText;
                 music.MusicName = FixSongName(firstMusicName);
+                
+                var songUrl = liElement.SelectSingleNode(".//a[@class='track__info-l']").GetAttributeValue("href", "");
+                music.ArtistUrl = await FindArtistUrl("https://eu.hitmo-top.com" + songUrl);
                 
                 var musicLinks = liElement.SelectSingleNode(".//a[contains(@href, '/get/music/')]");
                 music.DownloadUrl = musicLinks.GetAttributeValue("href", "");

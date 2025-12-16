@@ -28,12 +28,12 @@ public class SefonFindMusic : BaseMusicFind, IMusicFindService
     {
         return $"https://sefon.pro/search/{inputName.Replace(" ", "%20")}";
     }
-    private async Task<Music> FindApiAsync(string url)
+    private static async Task<string> FindMusicDownloadUrl(string url)
     {
         var chromeOptions = new ChromeOptions();
         chromeOptions.AddArgument("--headless");
 
-        Music info = new Music();
+        string downloadUrl;
         using (IWebDriver driver = new ChromeDriver(chromeOptions))
         {
             driver.Navigate().GoToUrl(url);
@@ -43,19 +43,11 @@ public class SefonFindMusic : BaseMusicFind, IMusicFindService
             var document = new HtmlDocument();
             document.LoadHtml(htmlContent);
 
-            var h1 = document.DocumentNode.SelectSingleNode("//h1");
-            string h1Text = h1?.InnerText ?? "";
-
-    // Очищаем и разбиваем текст
-            string[] parts = SanitizeFileName(h1Text).Trim().Split(new[] { " - " }, 2, StringSplitOptions.None);
-            info.ArtistName = parts[0].Trim();
-            info.MusicName = parts.Length > 1 ? parts[1].Trim() : "";
-
-    // Ищем ссылку для скачивания (XPath с несколькими условиями)
             var downloadEl = document.DocumentNode.SelectSingleNode("//a[contains(@class, 'b_btn') and contains(@class, 'download') and contains(@class, 'no-ajix') and contains(@href, '/api/')]");
-            info.DownloadUrl = "https://sefon.pro" + downloadEl?.GetAttributeValue("href", "") ?? "";
+            downloadUrl = "https://sefon.pro" + downloadEl?.GetAttributeValue("href", "") ?? "";
         }
-        return info;
+        
+        return downloadUrl;
     }
     public async Task<IEnumerable<Music>> FindMusicsAsync(string musicName)
     {
@@ -72,21 +64,41 @@ public class SefonFindMusic : BaseMusicFind, IMusicFindService
             var document = new HtmlDocument();
             document.LoadHtml(htmlContent);
             
-            var mainSection = document.DocumentNode.SelectSingleNode("//div[@class='main']");
-            var songPages = mainSection.SelectNodes(".//a[contains(@href, '/mp3/')]");
             
-            for (int i = 0; i < songPages.Count && i < 2 * _maxCountSongForSearchSong; i += 2)
+            var mainSection = document.DocumentNode.SelectSingleNode("//div[@class='main']");
+            var songs = mainSection.SelectNodes(".//div[@class='mp3']");
+
+
+            for (int i = 0; i < songs.Count && i < _maxCountSongForSearchSong; i++)
             {
-                var href = songPages[i].GetAttributeValue("href", "");
-                if (string.IsNullOrWhiteSpace(href))
-                    continue;
+                var songDiv = songs[i];
+                
+                var artistNameDiv = songDiv.SelectSingleNode(".//div[@class='artist_name']");
+                var artistNameA = artistNameDiv?.SelectSingleNode(".//a");
+                var artistName = artistNameA?.InnerText;
 
-                var info = await FindApiAsync("https://sefon.pro" + href);
-                info.SiteSource = SiteSource.A;
-                info.SourceName = musicName;
-                info.CreationDate = DateTime.UtcNow;
+                var songNameDiv = songDiv.SelectSingleNode(".//div[@class='song_name']");
+                var songNameA = songNameDiv?.SelectSingleNode(".//a");
+                var songName = songNameA?.InnerText;
+                
+                var hrefMusic = songNameA?.GetAttributeValue("href", "");
+                var musicUrl = "https://sefon.pro" + hrefMusic;
+                var downloadUrl = await FindMusicDownloadUrl(musicUrl);
+                
+                var hrefArtist =  artistNameA?.GetAttributeValue("href", "");
+                var artistUrl = "https://sefon.pro" + hrefArtist;
 
-                res.Add(info);
+                var music = new Music();
+
+                music.DownloadUrl = downloadUrl;
+                music.ArtistUrl = artistUrl;
+                music.ArtistName = artistName;
+                music.MusicName = songName;
+                music.SiteSource = SiteSource.A;
+                music.SourceName = musicName;
+                music.CreationDate = DateTime.UtcNow;
+                
+                res.Add(music);
             }
         }
         
