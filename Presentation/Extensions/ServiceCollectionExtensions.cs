@@ -10,14 +10,21 @@ using Infrastructure.Services.DownloadService;
 using Infrastructure.Services.DownloadServices;
 using Infrastructure.Services.Files;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
+using System.Reflection;
+
 namespace WertyMusic.Extensions;
 
 public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddCustomServices(this IServiceCollection services, IConfiguration configuration)
     {
+        services.AddEndpointsApiExplorer();
+        services.AddSwaggerGen(options =>
+        {
+            var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+            options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
+        });
+        
         services.AddRazorPages();
         services.AddControllers();
         services.AddControllersWithViews();
