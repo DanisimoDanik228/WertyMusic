@@ -35,7 +35,7 @@ public class ExceptionHandlerMiddleware
         var response = context.Response;
         response.ContentType = "application/json";
 
-        var (statusCode, message) = exception switch
+        var (statusCode, baseMessage) = exception switch
         {
             KeyNotFoundException => (HttpStatusCode.NotFound, "Resource not found"),
             UnauthorizedAccessException => (HttpStatusCode.Unauthorized, "Unauthorized access"),
@@ -45,12 +45,14 @@ public class ExceptionHandlerMiddleware
             _ => (HttpStatusCode.InternalServerError, "Internal server error")
         };
 
+        
+        var finalMessage = $"{baseMessage}: {exception.Message}";
         response.StatusCode = (int)statusCode;
 
         var errorResponse = new
         {
             StatusCode = (int)statusCode,
-            Message = message,
+            Message = finalMessage,
             Detailed = exception.Message,
             Timestamp = DateTime.UtcNow
         };
