@@ -20,6 +20,7 @@ builder.Services.AddCustomServices(builder.Configuration);
 
 var app = builder.Build();
 
+app.UseCustomMiddlewares();
 app.UseStorageDirectory();
 app.UseCustomRouting();
 
