@@ -58,7 +58,7 @@ public class HitmoFindMusic  : BaseMusicFind, IMusicFindService
         }
         
         int  endIndex = inputName.Length - 1;
-        while (endIndex > startIndex && (inputName[startIndex] == ' ' || inputName[startIndex] == '\r'|| inputName[startIndex] == '\n'))
+        while (endIndex > startIndex && (inputName[endIndex] == ' ' || inputName[endIndex] == '\r'|| inputName[endIndex] == '\n'))
         {
             endIndex--;
         }

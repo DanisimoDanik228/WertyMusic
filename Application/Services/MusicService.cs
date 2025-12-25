@@ -57,7 +57,7 @@ public class MusicService : IMusicService
     
     public async Task<byte[]?> DownloadMusicsAsync(IEnumerable<Guid> ids)
     {
-        List<string> musicUrls = new List<string>();
+        List<Music> musics = new();
         
         foreach (var id in ids)
         {
@@ -71,13 +71,13 @@ public class MusicService : IMusicService
                 var music = await _musicRepository.GetMusicByIdAsync(id);
                 music.Url = t;
                 await _musicRepository.UpdateMusicAsync(music.Id,music);
-                musicUrls.Add(t);
+                musics.Add(music);
             }
         }
         
         var zipPath =  Path.Combine(_storageOptions.LocalStorage ,Guid.NewGuid().ToString() + ".zip");
             
-        CreateZipFromFileList(musicUrls,zipPath);
+        CreateZipFromFileList(musics,zipPath);
 
         var fileBytes = await System.IO.File.ReadAllBytesAsync(zipPath);
         
@@ -144,17 +144,17 @@ public class MusicService : IMusicService
         return await _musicRepository.UpdateMusicAsync(id, music);
     }
 
-    private static void CreateZipFromFileList(IEnumerable<string> filePaths, string zipPath)
+    private static void CreateZipFromFileList(IEnumerable<Music> musics, string zipPath)
     {
         using (FileStream zipStream = new FileStream(zipPath, FileMode.Create))
         using (ZipArchive archive = new ZipArchive(zipStream, ZipArchiveMode.Create))
         {
-            foreach (string filePath in filePaths)
+            foreach (var music in musics)
             {
-                if (System.IO.File.Exists(filePath))
+                if (System.IO.File.Exists(music.Url))
                 {
-                    string fileName = Path.GetFileName(filePath);
-                    archive.CreateEntryFromFile(filePath, fileName);
+                    string fileName = $"{music.MusicName}.mp3";
+                    archive.CreateEntryFromFile(music.Url, fileName);
                 }
             }
         }

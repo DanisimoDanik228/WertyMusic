@@ -26,8 +26,8 @@ public class MusicDownloader :IDownloaderService
     {
         using (var client = new WebClient())
         {
-            var filename = $"{music.MusicName} - {music.ArtistName}";
-            var fullPath = Path.Combine(destination, filename) + ".mp3";
+            var filename = Guid.NewGuid().ToString() + ".mp3";
+            var fullPath = Path.Combine(destination, filename);
             
             client.DownloadFile(music.DownloadUrl, fullPath);
 
