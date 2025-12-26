@@ -66,8 +66,16 @@ public class SefonFindMusic : BaseMusicFind, IMusicFindService
             
             
             var mainSection = document.DocumentNode.SelectSingleNode("//div[@class='main']");
+            if (mainSection == null)
+            {
+                return [];
+            }
+            
             var songs = mainSection.SelectNodes(".//div[@class='mp3']");
-
+            if (songs == null)
+            {
+                return [];
+            }
 
             for (int i = 0; i < songs.Count && i < _maxCountSongForSearchSong; i++)
             {

@@ -83,6 +83,11 @@ public class HitmoFindMusic  : BaseMusicFind, IMusicFindService
             
             var liElements = document.DocumentNode.SelectNodes("//ul[@class='tracks__list']/li");
 
+            if (liElements == null)
+            {
+                return [];
+            }
+
             for (int i = 0; i < liElements.Count && i < _maxCountSongForSearchSong; i++)
             {
                 Music music = new();
