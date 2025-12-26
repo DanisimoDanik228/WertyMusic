@@ -25,3 +25,5 @@ app.UseStorageDirectory();
 app.UseCustomRouting();
 
 app.Run();
+
+public partial class Program { }
