@@ -19,6 +19,11 @@ public class MusicController : ControllerBase
         _musicService = musicService;
     }
     
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="request"></param>
+    /// <returns></returns>
     [HttpPost("musics")]
     public async Task<IActionResult> FindMusics([FromBody] FindRequest request)
     {
@@ -27,6 +32,10 @@ public class MusicController : ControllerBase
         return Ok(listMusic);
     }
     
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <returns></returns>
     [HttpGet("musics")]
     public async Task<IActionResult> GetAllMusics()
     {
@@ -35,18 +44,38 @@ public class MusicController : ControllerBase
         return Ok(listMusic);
     }
     
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="request"></param>
+    /// <returns></returns>
     [HttpPost("download")]
     public async Task<IActionResult> Download([FromBody] DonwloadRequest request)
     {
         var zipFile = await _musicService.DownloadMusicsAsync(request.musicsId);
-        
+
+        if (zipFile == null)
+        {
+            return NotFound();
+        }
+
         return File(zipFile, "application/zip", "archive.zip");
     }
     
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
     [HttpGet("music/{id}")]
     public async Task<IActionResult> GetMusicFile(Guid id)
     {
         var stream = await _musicService.GetFileMusicAsync(id);
+        
+        if (stream == null || stream.Length == 0)
+        {
+            return NotFound();
+        }
         
         return File(stream, "audio/mpeg","temp_name" + ".mp3");
     }
