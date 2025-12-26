@@ -10,13 +10,6 @@ public interface IMusicService
     Task<byte[]?> DownloadMusicsAsync(IEnumerable<Guid> id);
     Task<IEnumerable<Music>> FindMusicsAsync(string sourceMusicName);
     
-    
     Task<Stream?>  GetFileMusicAsync(Guid id);
-    Task<Music?> GetMusicByIdAsync(Guid id);
     Task<IEnumerable<Music>?> GetMusicsAsync();
-    
-    
-    Task<Music?> AddMusicAsync(Music music);
-    
-    Task<Music?> UpDateMusicAsync(Guid id,Music music);
 }

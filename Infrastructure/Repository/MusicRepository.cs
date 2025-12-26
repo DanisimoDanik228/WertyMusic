@@ -15,17 +15,12 @@ public class MusicRepository : IMusicRepository
     
     public async Task<Music?> GetMusicByIdAsync(Guid id)
     {
-        return _storage.FirstOrDefault(x => x.Id == id);
+        return CreateMusic(_storage.FirstOrDefault(x => x.Id == id));
     }
 
     public async Task<IEnumerable<Music>?> GetMusicsAsync()
     {
-        return _storage;
-    }
-
-    public async Task<Music?> GetMusicsByNameAsync(string songName)
-    {
-        return _storage.FirstOrDefault(x => x.MusicName == songName);
+        return new List<Music>(_storage);
     }
 
     public async Task<Music?> AddMusicAsync(Music music)
@@ -34,48 +29,36 @@ public class MusicRepository : IMusicRepository
         
         _storage.Add(music);
         
-        return music;
+        return CreateMusic(music);
     }
 
-    public async Task<Music?> UpdateMusicAsync(Guid id, Music music)
+    public async Task<Music?> UpdateMusicUrlAsync(Guid id, string url)
     {
-        var index = _storage.Find(x => x.Id == id);
+        var index =  _storage.FindIndex(x => x.Id == id);
+        _storage[index].Url = url;
         
-        if(index == null)
-            return null;
-        
-        index.Id = id;
-        index.ArtistName =  music.ArtistName;
-        index.CreationDate = music.CreationDate;
-        index.MusicName = music.MusicName;
-        index.SiteSource =  music.SiteSource;
-        index.Url = music.Url;
-        index.DownloadUrl = music.DownloadUrl;
-        
-        return index;
-    }
-
-    public async Task<Music?> DeleteMusicByIdAsync(Guid id)
-    {
-        var t =  _storage.FirstOrDefault(x => x.Id == id);
-        
-        _storage.RemoveAll(x => x.Id == id);
-
-        return t;
+        return CreateMusic(_storage[index]);
     }
 
     public async Task<IEnumerable<Music>?> GetMusicsBySourceNameAsync(string songName)
     {
-         return _storage.Where(m => m.MusicName == songName);
+         return new List<Music>(_storage.Where(x => x.MusicName == songName));
     }
+    
 
-    public async Task<bool> ExistsMusicByIdAsync(Guid id)
+    private static Music CreateMusic(Music music)
     {
-        return _storage.Any(x => x.Id == id);
-    }
-
-    public Task<Music?> UpdateFieldMusicAsync(Guid id, Music music)
-    {
-        throw new NotImplementedException();
+        return new Music
+        {
+            Id = Guid.NewGuid(),
+            MusicName = music.MusicName,
+            ArtistName = music.ArtistName,
+            Url = music.Url,
+            ArtistUrl = music.ArtistUrl,
+            DownloadUrl = music.DownloadUrl,
+            CreationDate = DateTime.UtcNow, 
+            SiteSource = music.SiteSource,
+            SourceName = music.SourceName
+        };
     }
 }

@@ -49,8 +49,11 @@ public class MusicService : IMusicService
         }
 
         var url = await _downloaderService.DownloadMusicAsync(existsMusic,_storageOptions.LocalStorage);
-        existsMusic.Url = url;
-        await _musicRepository.UpdateMusicAsync(id,existsMusic);
+        if (url == null)
+        {
+            return null;
+        }
+        await _musicRepository.UpdateMusicUrlAsync(id,url);
         
         return url;
     }
@@ -61,16 +64,10 @@ public class MusicService : IMusicService
         
         foreach (var id in ids)
         {
-            var t = await DownloadMusicAsync(id);
-            if (t == null)
+            var url = await DownloadMusicAsync(id);
+            if (url != null)
             {
-                return null;
-            }
-            else
-            {
-                var music = await _musicRepository.GetMusicByIdAsync(id);
-                music.Url = t;
-                await _musicRepository.UpdateMusicAsync(music.Id,music);
+                var music = await _musicRepository.UpdateMusicUrlAsync(id,url);
                 musics.Add(music);
             }
         }
@@ -137,11 +134,6 @@ public class MusicService : IMusicService
         music.Id = Guid.NewGuid();
         
         return await _musicRepository.AddMusicAsync(music);
-    }
-
-    public async Task<Music?> UpDateMusicAsync(Guid id, Music music)
-    {
-        return await _musicRepository.UpdateMusicAsync(id, music);
     }
 
     private static void CreateZipFromFileList(IEnumerable<Music> musics, string zipPath)
