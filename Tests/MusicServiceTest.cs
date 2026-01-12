@@ -63,7 +63,18 @@ public class MusicServiceTest
         var res = await _musicService.FindMusicsAsync(songName);
         
         Assert.NotNull(res);
-        // count services(2) * count music in one(5) = 10
         Assert.Empty(res);
+    }
+
+    [Fact]
+    public async Task Test_DownloadMusicsAsync_Reject()
+    {
+        var list = await  _musicService.FindMusicsAsync("eminem");
+        
+        List<Guid> musicIds = [list.First().Id];
+
+        var res = await  _musicService.DownloadMusicsAsync(musicIds);
+        
+        Assert.NotNull(res);
     }
 }
