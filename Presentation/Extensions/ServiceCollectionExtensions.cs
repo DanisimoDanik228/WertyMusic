@@ -37,6 +37,8 @@ public static class ServiceCollectionExtensions
         
         services.Configure<StorageOptions>(configuration.GetSection("StorageOptions"));
         
+        services.Configure<SeleniumOptions>(configuration.GetSection("SeleniumOptions"));
+        
         services.AddScoped<IFileSender, FileSender>();
         
         services.AddScoped<IMusicService, MusicService>();
