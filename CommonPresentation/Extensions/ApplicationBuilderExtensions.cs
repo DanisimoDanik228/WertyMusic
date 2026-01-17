@@ -1,6 +1,7 @@
 using Infrastructure.Options;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 
 namespace WertyMusic.Extensions;
@@ -23,12 +24,6 @@ public static class ApplicationBuilderExtensions
 
     public static WebApplication UseCustomRouting(this WebApplication app)
     {
-        if (app.Environment.IsDevelopment())
-        {
-            app.UseSwagger();  
-            app.UseSwaggerUI(); 
-        }
-        
         app.UseRouting();
         app.UseHttpsRedirection();
         app.UseAuthorization();
