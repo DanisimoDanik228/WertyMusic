@@ -1,0 +1,29 @@
+﻿services:
+  wertymusic:
+    build:
+      dockerfile: View/Dockerfile
+    container_name: werty-music
+    environment:
+      RUN_MIGRATIONS: "true"
+      ASPNETCORE_ENVIRONMENT: Docker
+    ports:
+      - "5000:8080"
+    depends_on:
+      - postgres_db
+      - selenium
+  
+  postgres_db:
+    image: postgres:16
+    container_name: db-werty-music
+    environment:
+      POSTGRES_DB: TestDocker
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 76127612
+    ports:
+      - "5432:5432"
+  
+  selenium:
+    image: selenium/standalone-chrome:latest
+    shm_size: 2gb
+    ports:
+      - "4444:4444"

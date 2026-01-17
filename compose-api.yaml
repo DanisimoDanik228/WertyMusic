@@ -1,7 +1,8 @@
 ﻿services:
   wertymusic:
-    image: werty2648/wertymusic:0.0.1
-    container_name: werty-music
+    build:
+      dockerfile: API/Dockerfile
+    container_name: werty-music--api
     environment:
       RUN_MIGRATIONS: "true"
       ASPNETCORE_ENVIRONMENT: Docker
