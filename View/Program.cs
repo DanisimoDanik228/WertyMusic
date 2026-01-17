@@ -1,3 +1,4 @@
+using System.Reflection;
 using ClassLibrary1.Interfaces;
 using ClassLibrary1.Services;
 using Domain.Interfaces.DownloadServices;
@@ -22,8 +23,18 @@ builder.Configuration
     .AddEnvironmentVariables();
 
 builder.Services.AddCustomServices(builder.Configuration);
+builder.Services.AddSwaggerGen(options =>
+{
+    var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
+});
 
 var app = builder.Build();
+if (true)
+{
+    app.UseSwagger();  
+    app.UseSwaggerUI(); 
+}
 
 app.UseCustomMiddlewares();
 app.UseStorageDirectory();
