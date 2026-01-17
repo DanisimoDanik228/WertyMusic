@@ -32,8 +32,6 @@ public static class ServiceCollectionExtensions
 
         services.AddScoped<IMusicRepository, MusicDBRepository>();
         
-        services.Configure<StorageOptions>(configuration.GetSection("StorageOptions"));
-        
         services.Configure<SeleniumOptions>(configuration.GetSection("SeleniumOptions"));
         
         services.AddScoped<IFileSender, FileSender>();
@@ -45,6 +43,16 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IMusicFindService, HitmoFindMusic>();  
         services.AddScoped<IMusicFindService, SefonFindMusic>();
 
+        var localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+        services.Configure<StorageOptions>(configuration.GetSection("StorageOptions"));
+        services.PostConfigure<StorageOptions>(options =>
+        {
+            if (!Path.IsPathRooted(options.LocalStorage))
+            {
+                options.LocalStorage = Path.Combine(localAppData, options.LocalStorage);
+            }
+        });
+        
         return services;
     }
 }
