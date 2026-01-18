@@ -30,7 +30,7 @@ public static class ServiceCollectionExtensions
         services.AddDbContext<AppDbContext>(options =>
             options.UseNpgsql(configuration.GetConnectionString("DefaultConnection")));
 
-        services.AddScoped<IMusicRepository, MusicDBRepository>();
+        services.AddScoped<IMusicRepository, MusicDbRepository>();
         
         services.Configure<SeleniumOptions>(configuration.GetSection("SeleniumOptions"));
         

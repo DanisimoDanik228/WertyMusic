@@ -104,10 +104,7 @@ public class MusicService : IMusicService
             musics.AddRange(downloaded);
         }
 
-        foreach (var music in musics)
-        {
-            await _musicRepository.AddMusicAsync(music);
-        }
+        await _musicRepository.AddMusicRangeAsync(musics);
         
         return musics;
     }

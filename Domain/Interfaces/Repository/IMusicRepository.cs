@@ -8,6 +8,7 @@ public interface IMusicRepository
     Task<IEnumerable<Music>?> GetMusicsAsync();
     
     Task<Music?> AddMusicAsync(Music music);
+    Task AddMusicRangeAsync(IEnumerable<Music> music);
     
     Task<Music?> UpdateMusicUrlAsync(Guid id, string url);
     

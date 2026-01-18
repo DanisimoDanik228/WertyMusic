@@ -32,6 +32,13 @@ public class MusicRepository : IMusicRepository
         return CreateMusic(music);
     }
 
+    public Task AddMusicRangeAsync(IEnumerable<Music> music)
+    {
+       _storage.AddRange(music);
+       
+       return Task.CompletedTask;
+    }
+
     public async Task<Music?> UpdateMusicUrlAsync(Guid id, string url)
     {
         var index =  _storage.FindIndex(x => x.Id == id);

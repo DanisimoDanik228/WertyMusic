@@ -5,11 +5,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Repository;
 
-public class MusicDBRepository : IMusicRepository
+public class MusicDbRepository : IMusicRepository
 {
     private readonly AppDbContext _context;
+    private IMusicRepository _musicRepositoryImplementation;
 
-    public MusicDBRepository(AppDbContext context)
+    public MusicDbRepository(AppDbContext context)
     {
         _context = context;
     }
@@ -31,6 +32,12 @@ public class MusicDBRepository : IMusicRepository
         await _context.SaveChangesAsync();
         
         return m.Entity;
+    }
+
+    public async Task AddMusicRangeAsync(IEnumerable<Music> music)
+    {
+        await _context.AddRangeAsync(music);
+        await _context.SaveChangesAsync();
     }
 
     public async Task<Music?> UpdateMusicUrlAsync(Guid id, string url)
