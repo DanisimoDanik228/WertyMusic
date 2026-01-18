@@ -24,13 +24,13 @@ builder.Configuration
     .AddEnvironmentVariables();
 
 builder.Services.AddCustomServices(builder.Configuration);
-builder.Services.AddCustomSwagger(builder.Configuration);
+//builder.Services.AddCustomSwagger(builder.Configuration);
 builder.Services.AddCustomStorageDirectory(builder.Configuration);
 
 
 var app = builder.Build();
 
-app.UseCustomSwagger();
+//app.UseCustomSwagger();
 app.UseCustomMiddlewares();
 app.UseCustomStorageDirectory();
 app.UseCustomRouting();
