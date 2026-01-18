@@ -8,7 +8,6 @@ namespace Infrastructure.Repository;
 public class MusicDBRepository : IMusicRepository
 {
     private readonly AppDbContext _context;
-    private IMusicRepository _musicRepositoryImplementation;
 
     public MusicDBRepository(AppDbContext context)
     {
@@ -38,6 +37,8 @@ public class MusicDBRepository : IMusicRepository
     {
         var m = await _context.Musics.Where(m => m.Id == id).FirstOrDefaultAsync();
 
+        m.Url = url;
+        
         await _context.SaveChangesAsync();
         
         return m;
