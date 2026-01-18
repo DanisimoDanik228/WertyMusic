@@ -19,6 +19,8 @@ public static class ApplicationBuilderExtensions
             Directory.CreateDirectory(directoryPath);
         }
 
+        Console.WriteLine("Storage directory is: " + directoryPath);
+
         return app;
     }
 
