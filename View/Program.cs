@@ -13,6 +13,7 @@ using Infrastructure.Services.Files;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using OpenQA.Selenium.Chrome;
+using WertyMusic;
 using WertyMusic.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -23,25 +24,19 @@ builder.Configuration
     .AddEnvironmentVariables();
 
 builder.Services.AddCustomServices(builder.Configuration);
-builder.Services.AddSwaggerGen(options =>
-{
-    var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
-    options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
-});
+builder.Services.AddCustomSwagger(builder.Configuration);
+builder.Services.AddCustomStorageDirectory(builder.Configuration);
+
 
 var app = builder.Build();
-if (true)
-{
-    app.UseSwagger();  
-    app.UseSwaggerUI(); 
-}
 
+app.UseCustomSwagger();
 app.UseCustomMiddlewares();
-app.UseStorageDirectory();
+app.UseCustomStorageDirectory();
 app.UseCustomRouting();
 if (Environment.GetEnvironmentVariable("RUN_MIGRATIONS") == "true")
 {
-    app.RunMigration();
+    app.RunCustomMigration();
 }
 
 app.Run();
