@@ -42,7 +42,14 @@ public static class ServiceCollectionExtensions
         
         services.AddScoped<IMusicFindService, HitmoFindMusic>();  
         services.AddScoped<IMusicFindService, SefonFindMusic>();
+        
+        services.AddScoped<IZipCreator, ZipCreator>();
+        
+        return services;
+    }
 
+    public static IServiceCollection AddCustomStorageDirectory(this IServiceCollection services, IConfiguration configuration)
+    {
         var localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
         services.Configure<StorageOptions>(configuration.GetSection("StorageOptions"));
         services.PostConfigure<StorageOptions>(options =>

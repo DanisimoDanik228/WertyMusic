@@ -19,12 +19,14 @@ public class MusicService : IMusicService
     private readonly IMusicRepository _musicRepository;
     private readonly StorageOptions _storageOptions;
     private readonly IDownloaderService _downloaderService;
+    private readonly IZipCreator _zipCreator;
     public MusicService(
         IEnumerable<IMusicFindService> downloadServices,
         IFileSender fileSender,
         IMusicRepository musicRepository,
         IOptions<StorageOptions> options,
-        IDownloaderService downloaderService
+        IDownloaderService downloaderService,
+        IZipCreator zipCreator
         )
     {
         _downloadServices = downloadServices;
@@ -32,6 +34,7 @@ public class MusicService : IMusicService
         _musicRepository = musicRepository;
         _storageOptions = options.Value;
         _downloaderService = downloaderService;
+        _zipCreator = zipCreator;
     }
     
     public async Task<string?> DownloadMusicAsync(Guid id)
@@ -74,7 +77,7 @@ public class MusicService : IMusicService
         
         var zipPath =  Path.Combine(_storageOptions.LocalStorage ,Guid.NewGuid().ToString() + ".zip");
             
-        CreateZipFromFileList(musics,zipPath);
+        _zipCreator.CreateZipFromFileList(musics,zipPath);
 
         var fileBytes = await System.IO.File.ReadAllBytesAsync(zipPath);
         
@@ -134,21 +137,5 @@ public class MusicService : IMusicService
         music.Id = Guid.NewGuid();
         
         return await _musicRepository.AddMusicAsync(music);
-    }
-
-    private static void CreateZipFromFileList(IEnumerable<Music> musics, string zipPath)
-    {
-        using (FileStream zipStream = new FileStream(zipPath, FileMode.Create))
-        using (ZipArchive archive = new ZipArchive(zipStream, ZipArchiveMode.Create))
-        {
-            foreach (var music in musics)
-            {
-                if (System.IO.File.Exists(music.Url))
-                {
-                    string fileName = $"{music.MusicName}.mp3";
-                    archive.CreateEntryFromFile(music.Url, fileName);
-                }
-            }
-        }
     }
 }

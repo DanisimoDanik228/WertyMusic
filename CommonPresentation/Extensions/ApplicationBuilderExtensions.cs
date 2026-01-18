@@ -1,5 +1,7 @@
+using Infrastructure.DBContext;
 using Infrastructure.Options;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
@@ -8,7 +10,7 @@ namespace WertyMusic.Extensions;
 
 public static class ApplicationBuilderExtensions
 {
-    public static WebApplication UseStorageDirectory(this WebApplication app)
+    public static WebApplication UseCustomStorageDirectory(this WebApplication app)
     {
         using var scope = app.Services.CreateScope();
         var options = scope.ServiceProvider.GetRequiredService<IOptions<StorageOptions>>();
@@ -38,6 +40,37 @@ public static class ApplicationBuilderExtensions
         
         app.MapRazorPages();
 
+        return app;
+    }
+    
+    public static WebApplication UseCustomMiddlewares(this WebApplication app)
+    {
+        app.UseMiddleware<ExceptionHandlerMiddleware>();
+        
+        return app;
+    }
+    
+    public static WebApplication RunCustomMigration(this WebApplication app)
+    {
+        using var scope = app.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+        var retries = 10;
+        while (retries-- > 0)
+        {
+            try
+            {
+                db.Database.Migrate();
+                Console.WriteLine("Database migrated");
+                break;
+            }
+            catch
+            {
+                Console.WriteLine("Postgres not ready, retrying...");
+                Thread.Sleep(3000);
+            }
+        }
+        
         return app;
     }
 }
