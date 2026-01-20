@@ -4,13 +4,19 @@ namespace Domain.Interfaces.Repository;
 
 public interface IMusicRepository
 {
-    Task<Music?> GetMusicByIdAsync(Guid id);
-    Task<IEnumerable<Music>?> GetMusicsAsync();
+    // If the method changes the BD states it returns Task.
+    // Otherwise Data is returned. 
     
-    Task<Music?> AddMusicAsync(Music music);
+    Task<Music?> GetMusicByIdAsync(Guid id);
+    
+    Task<IEnumerable<Music>> GetMusicsByIdsAsync(IEnumerable<Guid> ids);
+    
+    Task<IEnumerable<Music>> GetMusicsAsync();
+    
+    Task<IEnumerable<Music>> GetMusicsBySourceNameAsync(string sourceName);
+    
+    Task AddMusicAsync(Music music);
+    
     Task AddMusicRangeAsync(IEnumerable<Music> music);
     
-    Task<Music?> UpdateMusicUrlAsync(Guid id, string url);
-    
-    Task<IEnumerable<Music>?> GetMusicsBySourceNameAsync(string sourceMusicName);
 }

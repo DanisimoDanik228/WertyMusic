@@ -5,6 +5,7 @@ using Domain.Interfaces;
 using Domain.Interfaces.DownloadServices;
 using Domain.Interfaces.File;
 using Domain.Interfaces.Repository;
+using Domain.Interfaces.Repository.UnitOfWork;
 using Domain.Models;
 using Infrastructure.Options;
 using Microsoft.AspNetCore.Http;
@@ -16,14 +17,14 @@ public class MusicService : IMusicService
 {
     private readonly IEnumerable<IMusicFindService> _downloadServices;
     private readonly IFileSender _fileSender;
-    private readonly IMusicRepository _musicRepository;
+    private readonly IUnitOfWork _unitOfWork;
     private readonly StorageOptions _storageOptions;
     private readonly IDownloaderService _downloaderService;
     private readonly IZipCreator _zipCreator;
     public MusicService(
         IEnumerable<IMusicFindService> downloadServices,
         IFileSender fileSender,
-        IMusicRepository musicRepository,
+        IUnitOfWork unitOfWork,
         IOptions<StorageOptions> options,
         IDownloaderService downloaderService,
         IZipCreator zipCreator
@@ -31,49 +32,26 @@ public class MusicService : IMusicService
     {
         _downloadServices = downloadServices;
         _fileSender = fileSender;
-        _musicRepository = musicRepository;
+        _unitOfWork = unitOfWork;
         _storageOptions = options.Value;
         _downloaderService = downloaderService;
         _zipCreator = zipCreator;
     }
     
-    public async Task<string?> DownloadMusicAsync(Guid id)
-    {
-        var existsMusic = await _musicRepository.GetMusicByIdAsync(id);
-
-        if (existsMusic == null)
-        {
-            return null;
-        }
-
-        if (existsMusic.Url != null)
-        {
-            return existsMusic.Url;
-        }
-
-        var url = await _downloaderService.DownloadMusicAsync(existsMusic,_storageOptions.LocalStorage);
-        if (url == null)
-        {
-            return null;
-        }
-        await _musicRepository.UpdateMusicUrlAsync(id,url);
-        
-        return url;
-    }
-    
     public async Task<byte[]?> DownloadMusicsAsync(IEnumerable<Guid> ids)
     {
-        List<Music> musics = new();
+        var musics = await _unitOfWork.Music.GetMusicsByIdsAsync(ids);
         
-        foreach (var id in ids)
+        foreach (var music in musics)
         {
-            var url = await DownloadMusicAsync(id);
-            if (url != null)
+            if (music.Url == null)
             {
-                var music = await _musicRepository.UpdateMusicUrlAsync(id,url);
-                musics.Add(music);
+                var url = await _downloaderService.DownloadMusicAsync(music,_storageOptions.LocalStorage);
+                music.Url = url;
             }
         }
+
+        await _unitOfWork.SaveChangesAsync();
         
         var zipPath =  Path.Combine(_storageOptions.LocalStorage ,Guid.NewGuid().ToString() + ".zip");
             
@@ -88,14 +66,13 @@ public class MusicService : IMusicService
 
     public async Task<IEnumerable<Music>> FindMusicsAsync(string sourceMusicName)
     {
-        var existsMusic = await _musicRepository.GetMusicsBySourceNameAsync(sourceMusicName);
+        var existsMusic = await _unitOfWork.Music.GetMusicsBySourceNameAsync(sourceMusicName);
 
         if (existsMusic != null && existsMusic.Count() > 0)
         {
             return existsMusic;
         }
         
-        // must more strong logics (compare music from three different source site)
         List<Music> musics = new List<Music>();
         
         foreach (var downloadService in _downloadServices)
@@ -104,14 +81,16 @@ public class MusicService : IMusicService
             musics.AddRange(downloaded);
         }
 
-        await _musicRepository.AddMusicRangeAsync(musics);
+        await _unitOfWork.Music.AddMusicRangeAsync(musics);
+
+        await _unitOfWork.SaveChangesAsync();
         
         return musics;
     }
     
     public async Task<Stream?> GetFileMusicAsync(Guid id)
     {
-        var music = await _musicRepository.GetMusicByIdAsync(id);
+        var music = await _unitOfWork.Music.GetMusicByIdAsync(id);
 
         if (music == null)
             return null;
@@ -119,20 +98,8 @@ public class MusicService : IMusicService
         return await _fileSender.GetFileAsync(music);
     }
 
-    public async Task<Music?> GetMusicByIdAsync(Guid id)
-    {
-        return await _musicRepository.GetMusicByIdAsync(id);
-    }
-
     public async Task<IEnumerable<Music>?> GetMusicsAsync()
     {
-        return await _musicRepository.GetMusicsAsync();
-    }
-
-    public async Task<Music?> AddMusicAsync(Music music)
-    {
-        music.Id = Guid.NewGuid();
-        
-        return await _musicRepository.AddMusicAsync(music);
+        return await _unitOfWork.Music.GetMusicsAsync();
     }
 }

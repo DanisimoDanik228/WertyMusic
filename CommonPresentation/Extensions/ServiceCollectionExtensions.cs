@@ -11,6 +11,8 @@ using Infrastructure.Services.DownloadServices;
 using Infrastructure.Services.Files;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection;
+using Domain.Interfaces.Repository.UnitOfWork;
+using Infrastructure.Repository.UnitOfWork;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -44,6 +46,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IMusicFindService, SefonFindMusic>();
         
         services.AddScoped<IZipCreator, ZipCreator>();
+        
+        services.AddScoped<IUnitOfWork, DbUnitOfWork>();
         
         return services;
     }

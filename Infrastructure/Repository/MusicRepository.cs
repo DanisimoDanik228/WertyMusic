@@ -12,60 +12,34 @@ public class MusicRepository : IMusicRepository
     {
         _storage = new List<Music>();
     }
-    
+
     public async Task<Music?> GetMusicByIdAsync(Guid id)
     {
-        return CreateMusic(_storage.FirstOrDefault(x => x.Id == id));
+        throw new NotImplementedException();
     }
 
-    public async Task<IEnumerable<Music>?> GetMusicsAsync()
+    public async Task<IEnumerable<Music>?> GetMusicsByIdsAsync(IEnumerable<Guid> ids)
     {
-        return new List<Music>(_storage);
+        throw new NotImplementedException();
     }
 
-    public async Task<Music?> AddMusicAsync(Music music)
+    public async Task<IEnumerable<Music>> GetMusicsAsync()
     {
-        music.Id = Guid.NewGuid();
-        
-        _storage.Add(music);
-        
-        return CreateMusic(music);
+        throw new NotImplementedException();
     }
 
-    public Task AddMusicRangeAsync(IEnumerable<Music> music)
+    public async Task<IEnumerable<Music>> GetMusicsBySourceNameAsync(string sourceName)
     {
-       _storage.AddRange(music);
-       
-       return Task.CompletedTask;
+        throw new NotImplementedException();
     }
 
-    public async Task<Music?> UpdateMusicUrlAsync(Guid id, string url)
+    public async Task AddMusicAsync(Music music)
     {
-        var index =  _storage.FindIndex(x => x.Id == id);
-        _storage[index].Url = url;
-        
-        return CreateMusic(_storage[index]);
+        throw new NotImplementedException();
     }
 
-    public async Task<IEnumerable<Music>?> GetMusicsBySourceNameAsync(string songName)
+    public async Task AddMusicRangeAsync(IEnumerable<Music> music)
     {
-         return new List<Music>(_storage.Where(x => x.MusicName == songName));
-    }
-    
-
-    private static Music CreateMusic(Music music)
-    {
-        return new Music
-        {
-            Id = Guid.NewGuid(),
-            MusicName = music.MusicName,
-            ArtistName = music.ArtistName,
-            Url = music.Url,
-            ArtistUrl = music.ArtistUrl,
-            DownloadUrl = music.DownloadUrl,
-            CreationDate = DateTime.UtcNow, 
-            SiteSource = music.SiteSource,
-            SourceName = music.SourceName
-        };
+        throw new NotImplementedException();
     }
 }

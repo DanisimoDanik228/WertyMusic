@@ -5,8 +5,6 @@ namespace ClassLibrary1.Interfaces;
 
 public interface IMusicService
 {
-    // Main function
-    Task<string?> DownloadMusicAsync(Guid id);
     Task<byte[]?> DownloadMusicsAsync(IEnumerable<Guid> id);
     Task<IEnumerable<Music>> FindMusicsAsync(string sourceMusicName);
     
