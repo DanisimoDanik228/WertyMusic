@@ -37,12 +37,10 @@ public class MusicDbRepository : IMusicRepository
     public async Task AddMusicAsync(Music music)
     {
         await _context.Musics.AddAsync(music);
-        await _context.SaveChangesAsync();
     }
 
     public async Task AddMusicRangeAsync(IEnumerable<Music> music)
     {
         await _context.Musics.AddRangeAsync(music);
-        await _context.SaveChangesAsync();
     }
 }
