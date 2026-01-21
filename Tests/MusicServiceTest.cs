@@ -45,7 +45,7 @@ public class MusicServiceTest
         IDownloaderService downloaderService = new MusicDownloader();
         IMusicRepository musicRepository = new MusicDbRepository(dbContext);
         IUnitOfWork unitOfWork = new DbUnitOfWork(dbContext,musicRepository);
-        IZipCreator zipCreator = new ZipCreator();
+        IZipCreator zipCreator = new ZipCreator(optionsStorage);
         
         _musicService = new MusicService(
             downloadServices,
