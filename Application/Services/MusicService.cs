@@ -53,13 +53,7 @@ public class MusicService : IMusicService
 
         await _unitOfWork.SaveChangesAsync();
         
-        var zipPath =  Path.Combine(_storageOptions.LocalStorage ,Guid.NewGuid().ToString() + ".zip");
-            
-        _zipCreator.CreateZipFromFileList(musics,zipPath);
-
-        var fileBytes = await System.IO.File.ReadAllBytesAsync(zipPath);
-        
-        System.IO.File.Delete(zipPath);
+        var fileBytes = await _zipCreator.CreateZipFromFileListAsync(musics);
         
         return fileBytes;
     }

@@ -4,5 +4,5 @@ namespace Domain.Interfaces.File;
 
 public interface IZipCreator
 {
-    void CreateZipFromFileList(IEnumerable<Music> musics, string zipPath);
+    Task<byte[]> CreateZipFromFileListAsync(IEnumerable<Music> musics);
 }

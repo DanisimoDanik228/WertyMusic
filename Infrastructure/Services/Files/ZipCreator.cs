@@ -1,13 +1,23 @@
 ﻿using System.IO.Compression;
 using Domain.Interfaces.File;
 using Domain.Models;
+using Infrastructure.Options;
 
 namespace Infrastructure.Services.Files;
+using Microsoft.Extensions.Options;
 
 public class ZipCreator: IZipCreator
 {
-    public void CreateZipFromFileList(IEnumerable<Music> musics, string zipPath)
+    private readonly StorageOptions _storageOptions;
+    public ZipCreator(IOptions<StorageOptions> options)
     {
+        _storageOptions = options.Value;
+    }
+    
+    public async Task<byte[]> CreateZipFromFileListAsync(IEnumerable<Music> musics)
+    {
+        var zipPath = Path.Combine(_storageOptions.LocalStorage ,Guid.NewGuid().ToString() + ".zip");
+        
         using (FileStream zipStream = new FileStream(zipPath, FileMode.Create))
         using (ZipArchive archive = new ZipArchive(zipStream, ZipArchiveMode.Create))
         {
@@ -20,5 +30,11 @@ public class ZipCreator: IZipCreator
                 }
             }
         }
+        
+        var fileBytes = await System.IO.File.ReadAllBytesAsync(zipPath);
+        
+        System.IO.File.Delete(zipPath);
+        
+        return fileBytes;
     }
 }
