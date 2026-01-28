@@ -12,9 +12,14 @@ using Infrastructure.Services.Files;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection;
 using Domain.Interfaces.Repository.UnitOfWork;
+using Domain.Models;
 using Infrastructure.Repository.UnitOfWork;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Driver;
 
 namespace WertyMusic.Extensions;
 
@@ -29,10 +34,28 @@ public static class ServiceCollectionExtensions
         services.AddControllersWithViews();
         services.AddHttpClient();
 
-        services.AddDbContext<AppDbContext>(options =>
-            options.UseNpgsql(configuration.GetConnectionString("DefaultConnection")));
+        services.Configure<DatabaseOptions>(configuration.GetSection("DatabaseOptions"));
+        var dbSettings = configuration.GetSection("DatabaseOptions").Get<DatabaseOptions>();
 
-        services.AddScoped<IMusicRepository, MusicDbRepository>();
+        if (dbSettings == null)
+        {
+            throw new Exception("Database settings not found");
+        }
+        
+        services.AddDbContext<AppDbContext>(options => options.UseNpgsql(dbSettings.Postgres.ConnectionString));
+
+        services.AddSingleton(new MongoClient(dbSettings.MongoDb.ConnectionString).GetDatabase(dbSettings.MongoDb.DatabaseName));
+        BsonClassMap.RegisterClassMap<Music>(cm =>
+        {
+            cm.AutoMap();
+    
+            cm.MapIdProperty(m => m.Id)
+                .SetSerializer(new GuidSerializer(GuidRepresentation.Standard))
+                .SetElementName("_id"); 
+        });
+        
+        
+        services.AddScoped<IMusicRepository, MusicMongoDbRepository>();
         
         services.Configure<SeleniumOptions>(configuration.GetSection("SeleniumOptions"));
         
@@ -47,7 +70,7 @@ public static class ServiceCollectionExtensions
         
         services.AddScoped<IZipCreator, ZipCreator>();
         
-        services.AddScoped<IUnitOfWork, DbUnitOfWork>();
+        services.AddScoped<IUnitOfWork, UnitOfWorkMongoDb>();
         
         return services;
     }
