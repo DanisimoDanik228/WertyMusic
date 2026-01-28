@@ -14,6 +14,7 @@ public class PostgresOptions
 
 public class DatabaseOptions
 {
+    public string Db { get; set; }
     public PostgresOptions Postgres { get; set; }
     public MongoDbOptions MongoDb { get; set; }
 }
