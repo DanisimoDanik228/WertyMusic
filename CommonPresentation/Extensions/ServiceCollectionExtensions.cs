@@ -34,7 +34,8 @@ public static class ServiceCollectionExtensions
         services.AddControllersWithViews();
         services.AddHttpClient();
 
-        var dbSettings = configuration.GetSection("Database").Get<Database>();
+        services.Configure<DatabaseOptions>(configuration.GetSection("DatabaseOptions"));
+        var dbSettings = configuration.GetSection("DatabaseOptions").Get<DatabaseOptions>();
 
         if (dbSettings == null)
         {
@@ -88,21 +89,4 @@ public static class ServiceCollectionExtensions
         
         return services;
     }
-}
-
-class MongoDb
-{
-    public string ConnectionString { get; set; }
-    public string DatabaseName { get; set; }
-}
-
-class Postgres
-{
-    public string ConnectionString { get; set; }
-}
-
-class Database
-{
-    public Postgres Postgres { get; set; }
-    public MongoDb MongoDb { get; set; }
 }

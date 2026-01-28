@@ -1,5 +1,7 @@
 ﻿using Domain.Interfaces.Repository;
 using Domain.Models;
+using Infrastructure.Options;
+using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 
 namespace Infrastructure.Repository;
@@ -8,9 +10,9 @@ public class MusicMongoDbRepository : IMusicRepository
 {
     private readonly IMongoCollection<Music> _musicCollection;
     
-    public MusicMongoDbRepository(IMongoDatabase db)
+    public MusicMongoDbRepository(IMongoDatabase db,IOptions<DatabaseOptions> options)
     {
-        _musicCollection = db.GetCollection<Music>("musics");
+        _musicCollection = db.GetCollection<Music>(options.Value.MongoDb.CollectionName);
     }
     public async Task<Music?> GetMusicByIdAsync(Guid id)
     {
