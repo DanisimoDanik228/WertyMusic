@@ -1,18 +1,4 @@
-using System.Reflection;
-using ClassLibrary1.Interfaces;
-using ClassLibrary1.Services;
-using Domain.Interfaces.DownloadServices;
-using Domain.Interfaces.File;
-using Domain.Interfaces.Repository;
-using Infrastructure.DBContext;
 using Infrastructure.Options;
-using Infrastructure.Repository;
-using Infrastructure.Services.DownloadService;
-using Infrastructure.Services.DownloadServices;
-using Infrastructure.Services.Files;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
-using OpenQA.Selenium.Chrome;
 using WertyMusic;
 using WertyMusic.Extensions;
 
@@ -23,18 +9,29 @@ builder.Configuration
     .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true)
     .AddEnvironmentVariables();
 
+builder.Services.AddCustomOptions(builder.Configuration);
 builder.Services.AddCustomServices(builder.Configuration);
-//builder.Services.AddCustomSwagger(builder.Configuration);
 builder.Services.AddCustomStorageDirectory(builder.Configuration);
 
+var generalSettings = builder.Configuration.GetSection("GeneralSettings").Get<GeneralSettings>();
+if (generalSettings.AvailableSwagger)
+{
+    builder.Services.AddCustomSwagger(builder.Configuration);
+}
 
 var app = builder.Build();
 
-//app.UseCustomSwagger();
 app.UseCustomMiddlewares();
 app.UseCustomStorageDirectory();
 app.UseCustomRouting();
-if (Environment.GetEnvironmentVariable("RUN_MIGRATIONS") == "true")
+
+if (generalSettings.AvailableSwagger)
+{
+    app.UseCustomSwagger();
+}
+
+var dbSettings = builder.Configuration.GetSection("DatabaseOptions").Get<DatabaseOptions>();
+if (dbSettings.Db == "Postgres" && generalSettings.AvailableMigration)
 {
     app.RunCustomMigration();
 }
