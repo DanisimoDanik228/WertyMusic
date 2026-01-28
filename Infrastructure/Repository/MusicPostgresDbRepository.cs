@@ -5,11 +5,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Repository;
 
-public class MusicDbRepository : IMusicRepository
+public class MusicPostgresDbRepository : IMusicRepository
 {
     private readonly AppDbContext _context;
 
-    public MusicDbRepository(AppDbContext context)
+    public MusicPostgresDbRepository(AppDbContext context)
     {
         _context = context;
     }

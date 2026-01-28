@@ -29,8 +29,8 @@ public static class ServiceCollectionExtensions
     {
         services.AddDbContext<AppDbContext>(options => options.UseNpgsql(dbSettings.Postgres.ConnectionString));
         
-        services.AddScoped<IMusicRepository, MusicDbRepository>();
-        services.AddScoped<IUnitOfWork, DbUnitOfWork>();
+        services.AddScoped<IMusicRepository, MusicPostgresDbRepository>();
+        services.AddScoped<IUnitOfWork, UnitOfWorkPostgresDb>();
         
         return services;
     }

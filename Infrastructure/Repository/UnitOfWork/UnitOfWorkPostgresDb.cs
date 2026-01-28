@@ -4,12 +4,12 @@ using Infrastructure.DBContext;
 
 namespace Infrastructure.Repository.UnitOfWork;
 
-public class DbUnitOfWork : IUnitOfWork
+public class UnitOfWorkPostgresDb : IUnitOfWork
 {
     private readonly AppDbContext _context;
     public IMusicRepository Music { get; }
     
-    public DbUnitOfWork(AppDbContext context,IMusicRepository musicRepository)
+    public UnitOfWorkPostgresDb(AppDbContext context,IMusicRepository musicRepository)
     {
         Music = musicRepository;
         _context = context;
