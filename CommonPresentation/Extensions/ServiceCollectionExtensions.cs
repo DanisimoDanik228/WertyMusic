@@ -25,25 +25,18 @@ namespace WertyMusic.Extensions;
 
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection AddCustomServices(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddCustomPostgres(this IServiceCollection services, IConfiguration configuration,DatabaseOptions dbSettings)
     {
-        services.AddEndpointsApiExplorer();
-        
-        services.AddRazorPages();
-        services.AddControllers();
-        services.AddControllersWithViews();
-        services.AddHttpClient();
-
-        services.Configure<DatabaseOptions>(configuration.GetSection("DatabaseOptions"));
-        var dbSettings = configuration.GetSection("DatabaseOptions").Get<DatabaseOptions>();
-
-        if (dbSettings == null)
-        {
-            throw new Exception("Database settings not found");
-        }
-        
         services.AddDbContext<AppDbContext>(options => options.UseNpgsql(dbSettings.Postgres.ConnectionString));
-
+        
+        services.AddScoped<IMusicRepository, MusicDbRepository>();
+        services.AddScoped<IUnitOfWork, DbUnitOfWork>();
+        
+        return services;
+    }
+    
+    public static IServiceCollection AddCustomMongoDb(this IServiceCollection services, IConfiguration configuration,DatabaseOptions dbSettings)
+    {
         services.AddSingleton(new MongoClient(dbSettings.MongoDb.ConnectionString).GetDatabase(dbSettings.MongoDb.DatabaseName));
         BsonClassMap.RegisterClassMap<Music>(cm =>
         {
@@ -54,23 +47,61 @@ public static class ServiceCollectionExtensions
                 .SetElementName("_id"); 
         });
         
-        
         services.AddScoped<IMusicRepository, MusicMongoDbRepository>();
+        services.AddScoped<IUnitOfWork, UnitOfWorkMongoDb>();
         
+        return services;
+    }
+
+    public static IServiceCollection AddCustomOptions(this IServiceCollection services, IConfiguration configuration)
+    {
         services.Configure<SeleniumOptions>(configuration.GetSection("SeleniumOptions"));
+        services.Configure<StorageOptions>(configuration.GetSection("StorageOptions"));
+        services.Configure<DatabaseOptions>(configuration.GetSection("DatabaseOptions"));
         
-        services.AddScoped<IFileSender, FileSender>();
+        services.Configure<GeneralSettings>(configuration.GetSection("GeneralSettings"));
+        
+        return services;
+    }
+
+    public static IServiceCollection AddCustomServices(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.AddEndpointsApiExplorer();
+        services.AddRazorPages();
+        services.AddControllers();
+        services.AddControllersWithViews();
+        services.AddHttpClient();
+        
+        var dbSettings = configuration.GetSection("DatabaseOptions").Get<DatabaseOptions>();
+
+        if (dbSettings == null)
+        {
+            throw new ApplicationException("DatabaseOptions settings not found");
+        }
+
+        if (dbSettings.Db == "Postgres")
+        {
+            services.AddCustomPostgres(configuration, dbSettings);
+        }
+        else if(dbSettings.Db == "MongoDb")
+        {
+            services.AddCustomMongoDb(configuration, dbSettings);
+        }
+        else
+        {
+            throw new InvalidDataException("DatabaseOptions.Db settings invalid");
+        }
         
         services.AddScoped<IMusicService, MusicService>();
-        
-        services.AddScoped<IDownloaderService, MusicDownloader>();
         
         services.AddScoped<IMusicFindService, HitmoFindMusic>();  
         services.AddScoped<IMusicFindService, SefonFindMusic>();
         
-        services.AddScoped<IZipCreator, ZipCreator>();
+        services.AddScoped<IDownloaderService, MusicDownloader>();
         
-        services.AddScoped<IUnitOfWork, UnitOfWorkMongoDb>();
+        services.AddScoped<IFileSender, FileSender>();
+        
+        services.AddScoped<IZipCreator, ZipCreator>();
         
         return services;
     }
@@ -78,7 +109,6 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddCustomStorageDirectory(this IServiceCollection services, IConfiguration configuration)
     {
         var localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-        services.Configure<StorageOptions>(configuration.GetSection("StorageOptions"));
         services.PostConfigure<StorageOptions>(options =>
         {
             if (!Path.IsPathRooted(options.LocalStorage))
