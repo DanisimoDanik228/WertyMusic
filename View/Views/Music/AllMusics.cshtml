@@ -1,0 +1,25 @@
+@model IEnumerable<Domain.Models.Music>
+
+<h1>Все песни (@Model.Count())</h1>
+
+<a href="/">← На главную</a>
+
+<table class="table">
+    <thead>
+    <tr>
+        <th>Название</th>
+        <th>Исполнитель</th>
+        <th>Год</th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var song in Model)
+    {
+        <tr>
+            <td>@song.MusicName</td>
+            <td>@song.ArtistName</td>
+            <td>@song.SourceName</td>
+        </tr>
+    }
+    </tbody>
+</table>
