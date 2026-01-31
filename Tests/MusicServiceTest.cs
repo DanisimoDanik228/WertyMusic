@@ -43,8 +43,8 @@ public class MusicServiceTest
         IEnumerable<IMusicFindService> downloadServices = [new HitmoFindMusic(optionsStorage,seleniumOptions),new SefonFindMusic(optionsStorage,seleniumOptions)];
         IFileSender fileSender = new FileSender();
         IDownloaderService downloaderService = new MusicDownloader();
-        IMusicRepository musicRepository = new MusicDbRepository(dbContext);
-        IUnitOfWork unitOfWork = new DbUnitOfWork(dbContext,musicRepository);
+        IMusicRepository musicRepository = new MusicPostgresDbRepository(dbContext);
+        IUnitOfWork unitOfWork = new UnitOfWorkPostgresDb(dbContext,musicRepository);
         IZipCreator zipCreator = new ZipCreator(optionsStorage);
         
         _musicService = new MusicService(
