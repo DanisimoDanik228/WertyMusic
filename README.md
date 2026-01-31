@@ -19,7 +19,6 @@ sudo apt-get install docker-compose
 ```
 git clone https://github.com/DanisimoDanik228/WertyMusic.git
 cd WertyMusic
-git checkout dev
 sudo docker compose -f compose-view.yaml up --build
 ```
 
