@@ -1,6 +1,6 @@
 ﻿services:
   wertymusic:
-    image: werty2648/wertymusic:0.0.2
+    image: werty2648/wertymusic:1.0.0
     container_name: werty-music
     environment:
       ASPNETCORE_ENVIRONMENT: Docker
