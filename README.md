@@ -32,6 +32,7 @@ ab09ad5b077c   werty2648/wertymusic:0.0.2         "dotnet View.dll"        4 sec
 ```
 
 4) Access WertyMusic
+
 Open your browser and navigate to:
 ```
 http://localhost:5000
