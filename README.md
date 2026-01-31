@@ -9,7 +9,11 @@ Check if Docker is already installed:
 docker --version
 ```
 If Docker is not installed, follow the official installation page:
-https://docs.docker.com/engine/install/ubuntu/
+https://docs.docker.com/engine/install/ubuntu/ or try
+```
+sudo apt-get update
+sudo apt-get install docker-compose
+```
 
 2) Clone and run the application
 ```
