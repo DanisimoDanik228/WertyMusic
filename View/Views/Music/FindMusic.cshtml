@@ -1,41 +1,130 @@
 @model IEnumerable<Domain.Models.Music>
 
-<h1>Поиск песен</h1>
-
-<a href="/">← На главную</a>
-<a href="/Music/AllMusics" style="margin-left:20px">📀 Все песни</a>
-
-
-<form asp-action="FindMusic" method="post">
-    <input name="query" />
-    <button>Поиск</button>
-</form>
-
-<!-- Результаты -->
-@if (Model != null)
-{
-    if (Model.Any())
-    {
-        <h3>Найдено песен: @Model.Count()</h3>
-        <ul>
-            @foreach (var song in Model)
-            {
-                <li><strong>@song.MusicName</strong> - @song.ArtistName (@song.SourceName)</li>
-            }
-        </ul>
-    }
-    else if (!string.IsNullOrEmpty(ViewBag.Query))
-    {
-        <p>По запросу "@ViewBag.Query" ничего не найдено</p>
-    }
+@{
+    ViewData["Title"] = "Поиск музыки";
 }
 
-@if (Model != null && Model.Any())
-{
-    <form asp-action="DownloadZip" method="post" style="margin-top: 20px;">
-        <input type="hidden" name="query" value="@ViewBag.Query" />
-        <button type="submit">
-            📥 Скачать все найденные песни (@Model.Count())
-        </button>
-    </form>
-}
+<div class="container mt-4">
+    <h2>Поиск музыки</h2>
+
+    <div class="input-group mb-3">
+        <input type="text" id="searchInput" class="form-control" placeholder="Введите название песни или исполнителя..." />
+        <button class="btn btn-primary" type="button" id="btnSearch">Найти</button>
+    </div>
+
+    <div id="resultsInfo" class="alert alert-info" style="display:none;">
+        Найдено песен: <strong id="totalCount">0</strong>
+        <span id="loadingStatus" class="ms-3">
+            <span class="spinner-border spinner-border-sm" role="status"></span> Поиск продолжается...
+        </span>
+    </div>
+
+    <table class="table music-table mt-3">
+        <thead>
+            <tr>
+                <th>Название</th>
+                <th>Исполнитель</th>
+                <th>Ресурс</th>
+                <th>Действие</th>
+            </tr>
+        </thead>
+        <tbody id="musicTableBody">
+            <!-- Elements well be added here -->
+        </tbody>
+    </table>
+
+    <div class="download-all mt-4" id="downloadAllSection" style="display:none;">
+        <form asp-action="DownloadZip" method="post" id="downloadForm">
+            <!-- Hidden field to pass connection ID -->
+            <input type="hidden" name="connectionId" id="hiddenConnectionId" />
+            
+            <button type="submit" class="btn btn-success">
+                📥 Скачать все найденные (<span id="btnCount">0</span>)
+            </button>
+        </form>
+    </div>
+</div>
+
+<style>
+    .music-row {
+        animation: fadeIn 0.5s ease-in-out;
+    }
+
+    @@keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.1/signalr.min.js"></script>
+
+<script>
+    const connection = new signalR.HubConnectionBuilder()
+        .withUrl("/musicHub") 
+        .build();
+
+    let musicCount = 0;
+
+    connection.on("ReceiveMusic", function (song) {
+        musicCount++;
+        
+        document.getElementById("resultsInfo").style.display = "block";
+        document.getElementById("totalCount").innerText = musicCount;
+        document.getElementById("btnCount").innerText = musicCount;
+        document.getElementById("downloadAllSection").style.display = "block";
+
+        const tbody = document.getElementById("musicTableBody");
+        const row = `
+            <tr class="music-row">
+                <td>${song.musicName}</td>
+                <td>${song.artistName}</td>
+                <td><span class="badge bg-secondary">${song.siteSource}</span></td>
+                <td>
+                    <a href="${song.downloadUrl}" class="btn btn-sm btn-outline-primary" target="_blank">Скачать</a>
+                </td>
+            </tr>`;
+        
+        tbody.insertAdjacentHTML('beforeend', row);
+    });
+
+    connection.on("SearchFinished", function () {
+        document.getElementById("loadingStatus").innerHTML = "✅ Поиск завершен";
+    });
+
+    connection.on("ReceiveError", function (message) {
+        alert("Ошибка: " + message);
+    });
+
+    connection.start().then(function () {
+        console.log("SignalR Connected");
+        document.getElementById("hiddenConnectionId").value = connection.connectionId;
+    }).catch(err => console.error(err.toString()));
+
+    document.getElementById("btnSearch").addEventListener("click", function () {
+        const query = document.getElementById("searchInput").value;
+        if (!query) return alert("Введите запрос");
+
+        const connectionId = connection.connectionId;
+
+        musicCount = 0;
+        document.getElementById("musicTableBody").innerHTML = "";
+        document.getElementById("resultsInfo").style.display = "block";
+        document.getElementById("loadingStatus").innerHTML = '<span class="spinner-border spinner-border-sm"></span> Поиск...';
+        document.getElementById("downloadAllSection").style.display = "none";
+
+        const payload = {
+            MusicName: query,
+            ConnectionId: connectionId
+        };
+        
+        fetch('/Music/FindMusic', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        })
+        .then(response => {
+            if (!response.ok) throw new Error("Ошибка запуска поиска");
+        })
+        .catch(err => alert(err.message));
+    });
+</script>

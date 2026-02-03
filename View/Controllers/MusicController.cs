@@ -4,12 +4,20 @@ using ClassLibrary1.Services;
 using Domain.Models;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using WertyMusic.Requests;
+using System.Text.Json;
+using Infrastructure.DBContext;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace View.Controllers;
 
 public class MusicController : Controller
 {
+    private readonly IHubContext<MusicHub> _hubContext;
+    private readonly IMemoryCache _cache;
+
     private const string _findMusicView = "BeautifulMusic/BeautyFindMusic"; 
     //private const string _findMusicView = "FindMusic";
     private const string _allMusicView = "BeautifulMusic/BeautyAllMusics";
@@ -18,20 +26,37 @@ public class MusicController : Controller
     private const string FoundMusicIdsKey = "FoundMusicIds";
     private readonly IMusicService _musicService;
 
-    public MusicController(IMusicService musicService)
+    public MusicController(IMusicService musicService,IHubContext<MusicHub> hubContext, IMemoryCache cache)
     {
         _musicService = musicService;
+        _hubContext = hubContext;
+        _cache = cache;
     }
     
-    
     [HttpPost]
-    public async Task<IActionResult> FindMusic(string query)
+    public async Task<IActionResult> FindMusic([FromBody] FindRequest request)
     {
-        var results = await _musicService.FindMusicsAsync(query);
+        _ = Task.Run(async () =>
+        {
+            var foundIds = new List<Guid>();
 
-        TempData[FoundMusicIdsKey] = System.Text.Json.JsonSerializer.Serialize(results.Select(x => x.Id));
+            await foreach (var music in _musicService.FindMusicsAsync(request.MusicName))
+            {
+                Console.WriteLine("FindMusic: " + music.MusicName);
+                foundIds.Add(music.Id);
+
+                // Отправляем песню клиенту через SignalR
+                await _hubContext.Clients.Client(request.ConnectionId)
+                    .SendAsync("ReceiveMusic", music);
+            }
+
+            _cache.Set($"results_{request.ConnectionId}", foundIds, TimeSpan.FromHours(1));
         
-        return View(_findMusicView,results);
+            await _hubContext.Clients.Client(request.ConnectionId)
+                .SendAsync("SearchFinished");
+        });
+        return Ok();
+        //return View(_findMusicView,results);
     }
     
     [HttpGet]
