@@ -2,7 +2,8 @@ using Domain.Models;
 
 namespace WertyMusic.Requests;
 
-public class DonwloadRequest
+public class DownloadRequest
 {
     public IEnumerable<Guid> musicsId { get; set; }
+    public string ConnectionId { get; set; }
 }

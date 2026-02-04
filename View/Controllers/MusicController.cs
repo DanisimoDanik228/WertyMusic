@@ -17,13 +17,7 @@ public class MusicController : Controller
 {
     private readonly IHubContext<MusicHub> _hubContext;
     private readonly IMemoryCache _cache;
-
-    private const string _findMusicView = "BeautifulMusic/BeautyFindMusic"; 
-    //private const string _findMusicView = "FindMusic";
-    private const string _allMusicView = "BeautifulMusic/BeautyAllMusics";
-    //private const string _allMusicView = "AllMusics";
     
-    private const string FoundMusicIdsKey = "FoundMusicIds";
     private readonly IMusicService _musicService;
 
     public MusicController(IMusicService musicService,IHubContext<MusicHub> hubContext, IMemoryCache cache)
@@ -42,27 +36,24 @@ public class MusicController : Controller
 
             await foreach (var music in _musicService.FindMusicsAsync(request.MusicName))
             {
-                Console.WriteLine("FindMusic: " + music.MusicName);
                 foundIds.Add(music.Id);
-
-                // Отправляем песню клиенту через SignalR
+                
                 await _hubContext.Clients.Client(request.ConnectionId)
                     .SendAsync("ReceiveMusic", music);
             }
 
-            _cache.Set($"results_{request.ConnectionId}", foundIds, TimeSpan.FromHours(1));
+            _cache.Set($"results_{request.ConnectionId}", foundIds, TimeSpan.FromMinutes(30));
         
             await _hubContext.Clients.Client(request.ConnectionId)
                 .SendAsync("SearchFinished");
         });
         return Ok();
-        //return View(_findMusicView,results);
     }
     
     [HttpGet]
     public async Task<IActionResult> FindMusic()
     {
-        return View(_findMusicView);
+        return View("BeautyFindMusic");
     }
     
     [HttpGet]
@@ -70,14 +61,14 @@ public class MusicController : Controller
     {
         var results = await _musicService.GetMusicsAsync();
             
-        return View(_allMusicView,results);
+        return View("BeautyAllMusics",results);
     }
 
     [HttpPost]
-    public async Task<IActionResult> DownloadZip()
+    public async Task<IActionResult> DownloadZip([FromBody] DownloadRequest request)
     {
-        var idsJson = TempData[FoundMusicIdsKey] as string;
-        var ids = System.Text.Json.JsonSerializer.Deserialize<List<Guid>>(idsJson);
+        var ids = _cache.Get($"results_{request.ConnectionId}") as List<Guid>;
+        
         var zipFile = await _musicService.DownloadMusicsAsync(ids);
         
         return File(zipFile, "application/zip", "archive.zip");
