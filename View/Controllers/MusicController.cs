@@ -34,8 +34,8 @@ public class MusicController : Controller
         {
             try
             {
+                _cache.Remove($"results_{request.ConnectionId}");
                 var foundIds = new List<Guid>();
-
                 await foreach (var music in _musicService.FindMusicsAsync(request.MusicName))
                 {
                     foundIds.Add(music.Id);
@@ -45,7 +45,6 @@ public class MusicController : Controller
                 }
 
                 _cache.Set($"results_{request.ConnectionId}", foundIds, TimeSpan.FromMinutes(30));
-            
                 await _hubContext.Clients.Client(request.ConnectionId)
                     .SendAsync("SearchFinished");
             }
