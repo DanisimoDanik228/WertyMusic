@@ -75,9 +75,9 @@ public class MusicController : Controller
     }
 
     [HttpPost]
-    public async Task<IActionResult> DownloadZip([FromBody] DownloadRequest request)
+    public async Task<IActionResult> DownloadZip(string connectionId)
     {
-        var ids = _cache.Get($"results_{request.ConnectionId}") as List<Guid>;
+        var ids = _cache.Get($"results_{connectionId}") as List<Guid>;
         
         var zipFile = await _musicService.DownloadMusicsAsync(ids);
         
