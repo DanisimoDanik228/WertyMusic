@@ -32,20 +32,30 @@ public class MusicController : Controller
     {
         _ = Task.Run(async () =>
         {
-            var foundIds = new List<Guid>();
-
-            await foreach (var music in _musicService.FindMusicsAsync(request.MusicName))
+            try
             {
-                foundIds.Add(music.Id);
+                var foundIds = new List<Guid>();
+
+                await foreach (var music in _musicService.FindMusicsAsync(request.MusicName))
+                {
+                    foundIds.Add(music.Id);
+                    
+                    await _hubContext.Clients.Client(request.ConnectionId)
+                        .SendAsync("ReceiveMusic", music);
+                }
+
+                _cache.Set($"results_{request.ConnectionId}", foundIds, TimeSpan.FromMinutes(30));
+            
+                await _hubContext.Clients.Client(request.ConnectionId)
+                    .SendAsync("SearchFinished");
+            }
+            catch (Exception ex)
+            {
+                // _logger.LogError(ex, "Ошибка при поиске музыки");
                 
                 await _hubContext.Clients.Client(request.ConnectionId)
-                    .SendAsync("ReceiveMusic", music);
+                    .SendAsync("ReceiveError", "Произошла ошибка при поиске: " + ex.Message);
             }
-
-            _cache.Set($"results_{request.ConnectionId}", foundIds, TimeSpan.FromMinutes(30));
-        
-            await _hubContext.Clients.Client(request.ConnectionId)
-                .SendAsync("SearchFinished");
         });
         return Ok();
     }
