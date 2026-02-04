@@ -323,8 +323,9 @@
         const connectionId = connection.connectionId;
         if (!connectionId) return alert("Соединение устанавливается, подождите...");
 
-        // Сброс интерфейса
+        
         musicCount = 0;
+        document.getElementById("totalCount").innerText = musicCount;
         document.getElementById("musicTableBody").innerHTML = "";
         document.getElementById("resultsInfo").style.display = "block";
         document.getElementById("loadingStatus").innerHTML = '<span class="spinner"></span> Поиск продолжается...';
