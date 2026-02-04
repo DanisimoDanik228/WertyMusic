@@ -80,7 +80,7 @@ public class MusicService : IMusicService
             await foreach (var music in downloaded)
             {
                 yield return music;
-                musics.AddRange(musics);
+                musics.Add(music);
             }
             
         }
