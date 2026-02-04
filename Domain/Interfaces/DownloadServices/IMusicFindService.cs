@@ -4,6 +4,6 @@ namespace Domain.Interfaces.DownloadServices;
 
 public interface  IMusicFindService
 {
-    Task<IEnumerable<Music>> FindMusicsAsync(string musicName);
+    IAsyncEnumerable<Music> FindMusicsAsync(string musicName);
 
 }

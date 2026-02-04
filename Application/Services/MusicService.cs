@@ -75,9 +75,9 @@ public class MusicService : IMusicService
         
         foreach (var downloadService in _downloadServices)
         {
-            var downloaded = await downloadService.FindMusicsAsync(sourceMusicName);
+            var downloaded = downloadService.FindMusicsAsync(sourceMusicName);
 
-            foreach (var music in downloaded)
+            await foreach (var music in downloaded)
             {
                 yield return music;
                 musics.AddRange(musics);
