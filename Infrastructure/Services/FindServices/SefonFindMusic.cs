@@ -46,10 +46,8 @@ public class SefonFindMusic : BaseMusicFind, IMusicFindService
         
         return downloadUrl;
     }
-    public async Task<IEnumerable<Music>> FindMusicsAsync(string musicName)
+    public async IAsyncEnumerable<Music> FindMusicsAsync(string musicName)
     {
-        List<Music> res = new();
-
         string htmlContent;
         using (IWebDriver driver = CreateDriver(_seleniumOptions))
         {
@@ -65,13 +63,13 @@ public class SefonFindMusic : BaseMusicFind, IMusicFindService
         var mainSection = document.DocumentNode.SelectSingleNode("//div[@class='main']");
         if (mainSection == null)
         {
-            return [];
+            yield break;
         }
         
         var songs = mainSection.SelectNodes(".//div[@class='mp3']");
         if (songs == null)
         {
-            return [];
+            yield break;
         }
 
         for (int i = 0; i < songs.Count && i < _maxCountSongForSearchSong; i++)
@@ -103,10 +101,7 @@ public class SefonFindMusic : BaseMusicFind, IMusicFindService
             music.SourceName = musicName;
             music.CreationDate = DateTime.UtcNow;
             
-            res.Add(music);
+            yield return music;
         }
-        
-        
-        return res;
     }
 }
