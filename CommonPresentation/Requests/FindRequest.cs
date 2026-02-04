@@ -2,5 +2,6 @@ namespace WertyMusic.Requests;
 
 public class FindRequest
 {
-    public string musicName { get; set; }
+    public string MusicName { get; set; }
+    public string ConnectionId { get; set; }
 }
