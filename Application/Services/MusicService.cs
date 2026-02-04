@@ -58,13 +58,17 @@ public class MusicService : IMusicService
         return fileBytes;
     }
 
-    public async Task<IEnumerable<Music>> FindMusicsAsync(string sourceMusicName)
+    public async IAsyncEnumerable<Music> FindMusicsAsync(string sourceMusicName)
     {
         var existsMusic = await _unitOfWork.Music.GetMusicsBySourceNameAsync(sourceMusicName);
 
         if (existsMusic != null && existsMusic.Count() > 0)
         {
-            return existsMusic;
+            foreach (var music in existsMusic)
+            {
+                yield return music;
+            }
+            yield break;
         }
         
         List<Music> musics = new List<Music>();
@@ -72,14 +76,18 @@ public class MusicService : IMusicService
         foreach (var downloadService in _downloadServices)
         {
             var downloaded = await downloadService.FindMusicsAsync(sourceMusicName);
-            musics.AddRange(downloaded);
+
+            foreach (var music in downloaded)
+            {
+                yield return music;
+                musics.AddRange(musics);
+            }
+            
         }
 
         await _unitOfWork.Music.AddMusicRangeAsync(musics);
 
         await _unitOfWork.SaveChangesAsync();
-        
-        return musics;
     }
     
     public async Task<Stream?> GetFileMusicAsync(Guid id)
