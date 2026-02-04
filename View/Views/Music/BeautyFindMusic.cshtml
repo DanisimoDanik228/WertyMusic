@@ -103,7 +103,7 @@
             margin: 25px 0;
             font-size: 1.2rem;
             color: #8dd6f9;
-            display: none; /* Скрыто до начала поиска */
+            display: none; 
         }
 
         .music-table {
@@ -114,7 +114,7 @@
             border-radius: 12px;
             overflow: hidden;
             box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            display: none; /* Скрыта до появления первых результатов */
+            display: none;
         }
 
         .music-table thead {
@@ -202,8 +202,7 @@
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
-
-        /* Spinner for loading */
+        
         .spinner {
             display: inline-block;
             width: 14px;
@@ -239,7 +238,6 @@
         </div>
     </div>
 
-    <!-- Информационный блок (показывается при поиске) -->
     <div id="resultsInfo" class="results-info">
         Найдено песен: <strong id="totalCount">0</strong>
         <span id="loadingStatus" class="status-badge">
@@ -247,7 +245,6 @@
         </span>
     </div>
 
-    <!-- Таблица результатов -->
     <table id="musicTable" class="music-table">
         <thead>
         <tr>
@@ -258,7 +255,6 @@
         </tr>
         </thead>
         <tbody id="musicTableBody">
-            <!-- Элементы добавляются через JS -->
         </tbody>
     </table>
 
@@ -283,20 +279,15 @@
 
     let musicCount = 0;
 
-    // Прием данных
     connection.on("ReceiveMusic", function (song) {
         musicCount++;
         
-        // Показываем элементы интерфейса
         document.getElementById("resultsInfo").style.display = "block";
         document.getElementById("musicTable").style.display = "table";
         document.getElementById("downloadAllSection").style.display = "block";
-
-        // Обновляем счетчики
         document.getElementById("totalCount").innerText = musicCount;
         document.getElementById("btnCount").innerText = musicCount;
 
-        // Рендерим строку (в стиле вашего оригинала)
         const tbody = document.getElementById("musicTableBody");
         const row = `
             <tr>
@@ -311,24 +302,20 @@
         tbody.insertAdjacentHTML('beforeend', row);
     });
 
-    // Завершение поиска
     connection.on("SearchFinished", function () {
         document.getElementById("loadingStatus").innerHTML = "✅ Поиск завершен";
     });
 
-    // Ошибка
     connection.on("ReceiveError", function (message) {
         alert("Ошибка: " + message);
         document.getElementById("loadingStatus").innerHTML = "❌ Ошибка при поиске";
     });
-
-    // Старт SignalR
+    
     connection.start().then(function () {
         console.log("SignalR Connected");
         document.getElementById("hiddenConnectionId").value = connection.connectionId;
     }).catch(err => console.error(err.toString()));
-
-    // Логика кнопки Найти
+    
     document.getElementById("btnSearch").addEventListener("click", function () {
         const query = document.getElementById("searchInput").value;
         if (!query) return alert("Введите запрос");
