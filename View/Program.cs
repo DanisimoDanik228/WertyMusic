@@ -1,4 +1,5 @@
 using Infrastructure.Options;
+using Infrastructure.Services.SearchService;
 using View;
 using WertyMusic;
 using WertyMusic.Extensions;
@@ -10,6 +11,7 @@ builder.Configuration
     .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true)
     .AddEnvironmentVariables();
 
+builder.Services.AddSingleton<SearchSessionService<Guid>>();
 builder.Services.AddMemoryCache();
 builder.Services.AddSignalR();
 builder.Services.AddCustomOptions(builder.Configuration);

@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.SignalR;
 using WertyMusic.Requests;
 using System.Text.Json;
 using Infrastructure.DBContext;
+using Infrastructure.Services.SearchService;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 
@@ -16,15 +17,17 @@ namespace View.Controllers;
 public class MusicController : Controller
 {
     private readonly IHubContext<MusicHub> _hubContext;
-    private readonly IMemoryCache _cache;
-    
+    private readonly SearchSessionService<Guid> _sessionService;
     private readonly IMusicService _musicService;
 
-    public MusicController(IMusicService musicService,IHubContext<MusicHub> hubContext, IMemoryCache cache)
+    public MusicController(
+        IMusicService musicService,
+        IHubContext<MusicHub> hubContext,
+        SearchSessionService<Guid>  searchService)
     {
         _musicService = musicService;
         _hubContext = hubContext;
-        _cache = cache;
+        _sessionService = searchService;
     }
     
     [HttpPost]
@@ -34,17 +37,16 @@ public class MusicController : Controller
         {
             try
             {
-                _cache.Remove($"results_{request.ConnectionId}");
-                var foundIds = new List<Guid>();
+                _sessionService.AddConnection(request.ConnectionId);
+                
                 await foreach (var music in _musicService.FindMusicsAsync(request.MusicName))
                 {
-                    foundIds.Add(music.Id);
+                    _sessionService.Add(request.ConnectionId, music.Id);
                     
                     await _hubContext.Clients.Client(request.ConnectionId)
                         .SendAsync("ReceiveMusic", music);
                 }
-
-                _cache.Set($"results_{request.ConnectionId}", foundIds, TimeSpan.FromMinutes(30));
+                
                 await _hubContext.Clients.Client(request.ConnectionId)
                     .SendAsync("SearchFinished");
             }
@@ -76,7 +78,7 @@ public class MusicController : Controller
     [HttpPost]
     public async Task<IActionResult> DownloadZip(string connectionId)
     {
-        var ids = _cache.Get($"results_{connectionId}") as List<Guid>;
+        var ids = _sessionService.Get(connectionId);
         
         var zipFile = await _musicService.DownloadMusicsAsync(ids);
         
