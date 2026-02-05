@@ -84,4 +84,12 @@ public class MusicController : Controller
         
         return File(zipFile, "application/zip", "archive.zip");
     }
+    
+    [HttpPost]
+    public async Task<IActionResult> DownloadZipIds(IEnumerable<Guid> selectedIds)
+    {
+        var zipFile = await _musicService.DownloadMusicsAsync(selectedIds);
+        
+        return File(zipFile, "application/zip", "archive.zip");
+    }
 }

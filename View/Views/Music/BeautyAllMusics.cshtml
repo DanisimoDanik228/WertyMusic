@@ -202,42 +202,72 @@
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1 class="page-title">Музыкальная коллекция</h1>
-            <div class="song-count">Песен: @Model.Count()</div>
-        </div>
+<div class="container">
+    <div class="header">
+        <h1 class="page-title">Музыкальная коллекция</h1>
+        <div class="song-count">Песен: @Model.Count()</div>
+    </div>
         
-        <a href="/" class="back-link">На главную</a>
+    <a href="/" class="back-link">На главную</a>
         
+    <form asp-action="DownloadZipIds" method="post">
+        <button type="submit">
+            📥 Скачать
+        </button>
         <table class="music-table">
             <thead>
-                <tr>
-                    <th>Название</th>
-                    <th>Исполнитель</th>
-                    <th>Ресурс</th>
-                    <th>Ссылка на скачивание</th>
-                </tr>
+            <tr>
+                <th><input type="checkbox" id="selectAll"/></th>
+                <th>Название</th>
+                <th>Исполнитель</th>
+                <th>Ресурс</th>
+                <th>Ссылка на скачивание</th>
+            </tr>
             </thead>
             <tbody>
-                @foreach (var song in Model)
-                {
-                    <tr>
-                        <td class="music-name">@song.MusicName</td>
-                        <td class="artist-name">@song.ArtistName</td>
-                        <td class="source-name">@song.SiteSource</td>
-                        <td><a href="@song.DownloadUrl" class="download-link" target="_blank" rel="noopener noreferrer">Скачать</a></td>
-                    </tr>
-                }
+            @foreach (var song in Model)
+            {
+                <tr>
+                    <td>
+                        <input type="checkbox" name="selectedIds" value="@song.Id" class="song-checkbox"/>
+                    </td>
+                    <td class="music-name">@song.MusicName</td>
+                    <td class="artist-name">@song.ArtistName</td>
+                    <td class="source-name">@song.SiteSource</td>
+                    <td><a href="@song.DownloadUrl" class="download-link" target="_blank" rel="noopener noreferrer">Скачать</a></td>
+                </tr>
+            }
             </tbody>
         </table>
-        @if (!Model.Any())
-        {
-            <div class="empty-message">В коллекции пока нет музыки</div>
-        }
-        <div class="footer">
-            Музыкальная коллекция &copy; 2023
-        </div>
+    </form>
+        
+    @if (!Model.Any())
+    {
+        <div class="empty-message">В коллекции пока нет музыки</div>
+    }
+    <div class="footer">
+        Музыкальная коллекция &copy; 2023
     </div>
+</div>
+<script>
+    const selectAll = document.getElementById('selectAll');
+    const rowCheckboxes = document.querySelectorAll('.song-checkbox');
+
+    selectAll.addEventListener('change', function() {
+        rowCheckboxes.forEach(cb => {
+            cb.checked = selectAll.checked;
+        });
+    });
+
+    rowCheckboxes.forEach(cb => {
+        cb.addEventListener('change', function() {
+            const checkedCount = document.querySelectorAll('.song-checkbox:checked').length;
+            const totalCount = rowCheckboxes.length;
+
+            selectAll.checked = checkedCount === totalCount;
+            selectAll.indeterminate = checkedCount > 0 && checkedCount < totalCount;
+        });
+    });
+</script>
 </body>
 </html>
