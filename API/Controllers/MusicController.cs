@@ -27,9 +27,15 @@ public class MusicController : ControllerBase
     [HttpPost("musics")]
     public async Task<IActionResult> FindMusics([FromBody] FindRequest request)
     {
-        IEnumerable<Music> listMusic = await _musicService.FindMusicsAsync(request.musicName);
+        var listMusic = _musicService.FindMusicsAsync(request.MusicName);
+        var res = new List<Music>();
+
+        await foreach (var music in listMusic)
+        {
+            res.Add(music);
+        }
         
-        return Ok(listMusic);
+        return Ok(res);
     }
     
     /// <summary>
@@ -50,7 +56,7 @@ public class MusicController : ControllerBase
     /// <param name="request"></param>
     /// <returns></returns>
     [HttpPost("download")]
-    public async Task<IActionResult> Download([FromBody] DonwloadRequest request)
+    public async Task<IActionResult> Download([FromBody] DownloadRequest request)
     {
         var zipFile = await _musicService.DownloadMusicsAsync(request.musicsId);
 
