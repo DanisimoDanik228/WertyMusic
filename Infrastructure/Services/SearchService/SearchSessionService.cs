@@ -15,10 +15,12 @@ public class SearchSessionService<T>
     {
         if (_storage.ContainsKey(connectionId))
         {
-            throw new ArgumentException($"Connection with id {connectionId} already exists");
+            _storage[connectionId].Clear();
         }
-
-        _storage.Add(connectionId,new List<T>());
+        else
+        {
+            _storage.Add(connectionId,new List<T>());
+        }
     }
 
     public void Clear(string connectionId)
