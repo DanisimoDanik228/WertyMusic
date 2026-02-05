@@ -62,9 +62,8 @@ public class HitmoFindMusic  : BaseMusicFind, IMusicFindService
         return inputName.Substring(startIndex, endIndex - startIndex);
     }
 
-    public async Task<IEnumerable<Music>> FindMusicsAsync(string musicName)
+    public async IAsyncEnumerable<Music> FindMusicsAsync(string musicName)
     {
-        List<Music> res = new();
         string htmlContent;
         using (IWebDriver driver = CreateDriver(_seleniumOptions))
         {
@@ -80,7 +79,7 @@ public class HitmoFindMusic  : BaseMusicFind, IMusicFindService
 
         if (liElements == null)
         {
-            return [];
+            yield break;
         }
 
         for (int i = 0; i < liElements.Count && i < _maxCountSongForSearchSong; i++)
@@ -100,10 +99,8 @@ public class HitmoFindMusic  : BaseMusicFind, IMusicFindService
             music.SiteSource = SiteSource.B;
             music.SourceName = musicName;
             music.CreationDate = DateTime.UtcNow;
-            
-            res.Add(music);
+         
+            yield return music;
         }
-        
-        return res;
     }
 }

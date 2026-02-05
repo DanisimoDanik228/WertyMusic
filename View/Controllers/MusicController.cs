@@ -4,40 +4,67 @@ using ClassLibrary1.Services;
 using Domain.Models;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using WertyMusic.Requests;
+using System.Text.Json;
+using Infrastructure.DBContext;
+using Infrastructure.Services.SearchService;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace View.Controllers;
 
 public class MusicController : Controller
 {
-    private const string _findMusicView = "BeautifulMusic/BeautyFindMusic"; 
-    //private const string _findMusicView = "FindMusic";
-    private const string _allMusicView = "BeautifulMusic/BeautyAllMusics";
-    //private const string _allMusicView = "AllMusics";
-    
-    private const string FoundMusicIdsKey = "FoundMusicIds";
+    private readonly IHubContext<MusicHub> _hubContext;
+    private readonly SearchSessionService<Guid> _sessionService;
     private readonly IMusicService _musicService;
 
-    public MusicController(IMusicService musicService)
+    public MusicController(
+        IMusicService musicService,
+        IHubContext<MusicHub> hubContext,
+        SearchSessionService<Guid>  searchService)
     {
         _musicService = musicService;
+        _hubContext = hubContext;
+        _sessionService = searchService;
     }
     
-    
     [HttpPost]
-    public async Task<IActionResult> FindMusic(string query)
+    public async Task<IActionResult> FindMusic([FromBody] FindRequest request)
     {
-        var results = await _musicService.FindMusicsAsync(query);
-
-        TempData[FoundMusicIdsKey] = System.Text.Json.JsonSerializer.Serialize(results.Select(x => x.Id));
-        
-        return View(_findMusicView,results);
+        _ = Task.Run(async () =>
+        {
+            try
+            {
+                _sessionService.AddConnection(request.ConnectionId);
+                
+                await foreach (var music in _musicService.FindMusicsAsync(request.MusicName))
+                {
+                    _sessionService.Add(request.ConnectionId, music.Id);
+                    
+                    await _hubContext.Clients.Client(request.ConnectionId)
+                        .SendAsync("ReceiveMusic", music);
+                }
+                
+                await _hubContext.Clients.Client(request.ConnectionId)
+                    .SendAsync("SearchFinished");
+            }
+            catch (Exception ex)
+            {
+                // _logger.LogError(ex, "Ошибка при поиске музыки");
+                
+                await _hubContext.Clients.Client(request.ConnectionId)
+                    .SendAsync("ReceiveError", "Произошла ошибка при поиске: " + ex.Message);
+            }
+        });
+        return Ok();
     }
     
     [HttpGet]
     public async Task<IActionResult> FindMusic()
     {
-        return View(_findMusicView);
+        return View("BeautyFindMusic");
     }
     
     [HttpGet]
@@ -45,14 +72,14 @@ public class MusicController : Controller
     {
         var results = await _musicService.GetMusicsAsync();
             
-        return View(_allMusicView,results);
+        return View("BeautyAllMusics",results);
     }
 
     [HttpPost]
-    public async Task<IActionResult> DownloadZip()
+    public async Task<IActionResult> DownloadZip(string connectionId)
     {
-        var idsJson = TempData[FoundMusicIdsKey] as string;
-        var ids = System.Text.Json.JsonSerializer.Deserialize<List<Guid>>(idsJson);
+        var ids = _sessionService.Get(connectionId);
+        
         var zipFile = await _musicService.DownloadMusicsAsync(ids);
         
         return File(zipFile, "application/zip", "archive.zip");

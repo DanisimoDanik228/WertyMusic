@@ -27,7 +27,7 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddCustomPostgres(this IServiceCollection services, IConfiguration configuration,DatabaseOptions dbSettings)
     {
-        services.AddDbContext<AppDbContext>(options => options.UseNpgsql(dbSettings.Postgres.ConnectionString));
+        services.AddDbContextFactory<AppDbContext>(options => options.UseNpgsql(dbSettings.Postgres.ConnectionString));
         
         services.AddScoped<IMusicRepository, MusicPostgresDbRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWorkPostgresDb>();

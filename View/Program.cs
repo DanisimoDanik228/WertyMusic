@@ -1,4 +1,6 @@
 using Infrastructure.Options;
+using Infrastructure.Services.SearchService;
+using View;
 using WertyMusic;
 using WertyMusic.Extensions;
 
@@ -9,6 +11,9 @@ builder.Configuration
     .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true)
     .AddEnvironmentVariables();
 
+builder.Services.AddSingleton<SearchSessionService<Guid>>();
+builder.Services.AddMemoryCache();
+builder.Services.AddSignalR();
 builder.Services.AddCustomOptions(builder.Configuration);
 builder.Services.AddCustomServices(builder.Configuration);
 builder.Services.AddCustomStorageDirectory(builder.Configuration);
@@ -21,6 +26,7 @@ if (generalSettings.AvailableSwagger)
 
 var app = builder.Build();
 
+app.MapHub<MusicHub>("/musicHub");
 app.UseCustomMiddlewares();
 app.UseCustomStorageDirectory();
 app.UseCustomRouting();
