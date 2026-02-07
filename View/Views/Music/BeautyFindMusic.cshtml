@@ -106,10 +106,10 @@
     
     document.getElementById("btnSearch").addEventListener("click", function () {
         const query = document.getElementById("searchInput").value;
-        if (!query) return alert("Введите запрос");
+        if (!query) return alert("Input song name");
 
         const connectionId = connection.connectionId;
-        if (!connectionId) return alert("Соединение устанавливается, подождите...");
+        if (!connectionId) return alert("Connection establishment, wait...");
 
         
         musicCount = 0;
@@ -131,7 +131,7 @@
             body: JSON.stringify(payload)
         })
         .then(response => {
-            if (!response.ok) throw new Error("Ошибка запуска поиска");
+            if (!response.ok) throw new Error("Search error");
         })
         .catch(err => alert(err.message));
     });
