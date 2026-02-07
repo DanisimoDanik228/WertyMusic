@@ -28,6 +28,7 @@ public static class ApplicationBuilderExtensions
 
     public static WebApplication UseCustomRouting(this WebApplication app)
     {
+        app.UseStaticFiles();
         app.UseRouting();
         app.UseHttpsRedirection();
         app.UseAuthorization();
