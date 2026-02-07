@@ -6,220 +6,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Поиск песен</title>
-
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        body {
-            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-            color: #f0f0f0;
-            min-height: 100vh;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 1100px;
-            margin: 0 auto;
-        }
-
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-            padding-bottom: 20px;
-            border-bottom: 2px solid rgba(255,255,255,0.1);
-        }
-
-        .page-title {
-            font-size: 2.4rem;
-            font-weight: 700;
-            background: linear-gradient(to right, #00b4db, #0083b0);
-            -webkit-background-clip: text;
-            color: transparent;
-        }
-
-        .nav-links a {
-            margin-right: 15px;
-            text-decoration: none;
-            color: #8dd6f9;
-            padding: 8px 16px;
-            background: rgba(0, 131, 176, 0.15);
-            border-radius: 8px;
-            transition: 0.3s;
-        }
-
-        .nav-links a:hover {
-            background: rgba(0, 131, 176, 0.3);
-        }
-
-        .search-box {
-            margin: 30px 0;
-            background: rgba(25, 40, 50, 0.7);
-            padding: 25px;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-        }
-
-        .search-form {
-            display: flex;
-            gap: 15px;
-        }
-
-        .search-form input {
-            flex: 1;
-            padding: 12px 15px;
-            border-radius: 8px;
-            border: none;
-            outline: none;
-            font-size: 1rem;
-            background: rgba(255,255,255,0.9);
-            color: #333;
-        }
-
-        .search-form button {
-            padding: 12px 25px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 1rem;
-            font-weight: 600;
-            background: linear-gradient(to right, #00b4db, #0083b0);
-            color: white;
-            transition: 0.3s;
-        }
-
-        .search-form button:hover {
-            opacity: 0.9;
-            transform: translateY(-2px);
-        }
-
-        .results-info {
-            margin: 25px 0;
-            font-size: 1.2rem;
-            color: #8dd6f9;
-            display: none; 
-        }
-
-        .music-table {
-            width: 100%;
-            border-collapse: separate;
-            border-spacing: 0;
-            background: rgba(25, 40, 50, 0.7);
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            display: none;
-        }
-
-        .music-table thead {
-            background: linear-gradient(to right, #00b4db, #0083b0);
-        }
-
-        .music-table th,
-        .music-table td {
-            padding: 16px;
-            text-align: left;
-        }
-
-        .music-table th {
-            color: white;
-            text-transform: uppercase;
-            font-size: 0.95rem;
-        }
-
-        .music-table tbody tr {
-            transition: 0.3s;
-            animation: fadeIn 0.4s ease-out forwards;
-        }
-
-        .music-table tbody tr:hover {
-            background: rgba(0,180,219,0.1);
-        }
-
-        .music-name {
-            font-weight: 600;
-            color: white;
-        }
-
-        .artist-name {
-            color: #8dd6f9;
-        }
-
-        .source-name {
-            color: #a0e7a0;
-        }
-
-        .download-link {
-            color: #ffb347;
-            text-decoration: none;
-            font-weight: 500;
-            transition: all 0.2s ease;
-            display: inline-block;
-            padding: 5px 10px;
-            border-radius: 4px;
-            background: rgba(255, 179, 71, 0.1);
-        }
-
-        .download-link:hover {
-            color: #ff8c00;
-            background: rgba(255, 179, 71, 0.2);
-            text-decoration: underline;
-        }
-
-        .download-all {
-            margin-top: 25px;
-            text-align: right;
-            display: none;
-        }
-
-        .download-all button {
-            padding: 12px 20px;
-            border-radius: 8px;
-            border: none;
-            cursor: pointer;
-            font-size: 1rem;
-            font-weight: 600;
-            background: linear-gradient(to right, #ffb347, #ff8c00);
-            color: #2c2c2c;
-            transition: 0.3s;
-        }
-
-        .status-badge {
-            font-size: 0.9rem;
-            margin-left: 15px;
-            padding: 4px 10px;
-            border-radius: 20px;
-            background: rgba(141, 214, 249, 0.1);
-        }
-
-        @@keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .spinner {
-            display: inline-block;
-            width: 14px;
-            height: 14px;
-            border: 2px solid rgba(141, 214, 249, 0.3);
-            border-radius: 50%;
-            border-top-color: #8dd6f9;
-            animation: spin 1s linear infinite;
-            margin-right: 8px;
-        }
-
-        @@keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-    </style>
 </head>
-
 <body>
 <div class="container">
 
@@ -245,24 +32,25 @@
         </span>
     </div>
 
-    <table id="musicTable" class="music-table">
-        <thead>
-        <tr>
-            <th>Название</th>
-            <th>Исполнитель</th>
-            <th>Ресурс</th>
-            <th>Ссылка на скачивание</th>
-        </tr>
-        </thead>
-        <tbody id="musicTableBody">
-        </tbody>
-    </table>
+    <div class="search-page">
+        <table id="musicTable" class="music-table">
+            <thead>
+            <tr>
+                <th>Название</th>
+                <th>Исполнитель</th>
+                <th>Ресурс</th>
+                <th>Ссылка на скачивание</th>
+            </tr>
+            </thead>
+            <tbody id="musicTableBody">
+            </tbody>
+        </table>
+    </div>
 
-    <!-- Кнопка Скачать всё -->
     <div id="downloadAllSection" class="download-all">
         <form asp-action="DownloadZip" method="post">
             <input type="hidden" name="connectionId" id="hiddenConnectionId" />
-            <button type="submit">
+            <button type="submit" >
                 📥 Скачать все (<span id="btnCount">0</span>)
             </button>
         </form>
