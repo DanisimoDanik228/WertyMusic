@@ -96,7 +96,7 @@ public class HitmoFindMusic  : BaseMusicFind, IMusicFindService
             
             var musicLinks = liElement.SelectSingleNode(".//a[contains(@href, '/get/music/')]");
             music.DownloadUrl = musicLinks.GetAttributeValue("href", "");
-            music.SiteSource = SiteSource.B;
+            music.SiteSource = SiteSource.Hitmo;
             music.SourceName = musicName;
             music.CreationDate = DateTime.UtcNow;
          

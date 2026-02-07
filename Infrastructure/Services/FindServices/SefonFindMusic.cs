@@ -97,7 +97,7 @@ public class SefonFindMusic : BaseMusicFind, IMusicFindService
             music.ArtistUrl = artistUrl;
             music.ArtistName = artistName;
             music.MusicName = songName;
-            music.SiteSource = SiteSource.A;
+            music.SiteSource = SiteSource.Sefon;
             music.SourceName = musicName;
             music.CreationDate = DateTime.UtcNow;
             
